@@ -144,7 +144,7 @@ namespace Datadog.Trace.Telemetry
 
             var dependencyCollectionEnabled = config.WithKeys(ConfigurationKeys.Telemetry.DependencyCollectionEnabled).AsBool(true);
             // Currently disabled, will be flipped to true in later versions as part of the rollout
-            var v2Enabled = config.WithKeys(ConfigurationKeys.Telemetry.V2Enabled).AsBool(false);
+            var v2Enabled = config.WithKeys(ConfigurationKeys.Telemetry.V2Enabled).AsBool(true);
 
             // For testing purposes only
             var debugEnabled = config.WithKeys(ConfigurationKeys.Telemetry.DebugEnabled).AsBool(false);
