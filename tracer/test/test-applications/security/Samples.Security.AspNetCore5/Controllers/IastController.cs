@@ -41,6 +41,35 @@ namespace Samples.Security.AspNetCore5.Controllers
             return Content("Ok\n");
         }
 
+        [HttpGet("Secrets")]
+        [Route("Secrets")]
+        public IActionResult Secrets()
+        {
+            string[] hardcodedSecrets = new[] {
+            "use strict",
+            "ghu_123456123456123456123456123456123456",
+            "view engine",
+            "/weak-hash",
+            "./routers/weak-hash",
+            "/weak-cipher",
+            "./routers/weak-cipher",
+            "./routers/sqli",
+            "/cmdi.min",
+            "./routers/cmdi.min",
+            "./routers/cmdi",
+            "/path-traversal",
+            "./routers/path-traversal",
+            "./routers/ldap",
+            "/unvalidated-redirect",
+            "./routers/unvalidated-redirect",
+            "ghu_123456123456123456123456123456654321",
+            "valueToHash"
+        }; 
+            
+            return Content($"Loaded {hardcodedSecrets.Length} strings with potential hardcoded secrets.\n");
+        }
+
+
         [HttpGet("WeakHashing")]
         [Route("WeakHashing/{delay1}")]
         public IActionResult WeakHashing(int delay1 = 0, int delay2 = 0)
