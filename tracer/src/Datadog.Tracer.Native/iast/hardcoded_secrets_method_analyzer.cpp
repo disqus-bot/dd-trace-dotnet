@@ -31,8 +31,7 @@ bool HardcodedSecretsMethodAnalyzer::ProcessMethod(MethodInfo* method)
                 {
                     methodName = method->GetFullName(true);
                 }
-                shared::WSTRING location = methodName + WStr(":") + ToWSTRING(pInstr->m_offset);
-                userStrings.push_back({location, userString});
+                userStrings.push_back({methodName, userString});
             }
         }
         hr = method->CommitILRewriter();

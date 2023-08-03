@@ -32,6 +32,7 @@ internal class HardcodedSecretsAnalyzer
 {
     private static readonly IDatadogLogger Log = DatadogLogging.GetLoggerFor<HardcodedSecretsAnalyzer>();
     private static HardcodedSecretsAnalyzer? _instance = null;
+
     private static string[] _excludedAssemblies = new[]
     {
         "System*",
@@ -89,16 +90,25 @@ internal class HardcodedSecretsAnalyzer
     };
 
     private static List<Regex>? _excludedAssembliesRegexes = null;
+
     private static bool _started = false;
+
+    private static List<SecretRegex>? _secretRules = null;
+
     private static ManualResetEventSlim _waitEvent = new ManualResetEventSlim(false);
 
     public HardcodedSecretsAnalyzer()
     {
         LifetimeManager.Instance.AddShutdownTask(RunShutdown);
 
-        // var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        // AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
-        // Task.Run(() => ProcessAssemblies(assemblies));
+        if (_secretRules == null)
+        {
+            _secretRules = new List<SecretRegex>
+            {
+                new SecretRegex { Rule = "github-app-token", Regex = new Regex(@"(ghu|ghs)_[0-9a-zA-Z]{36}", RegexOptions.IgnoreCase | RegexOptions.Compiled) },
+                new SecretRegex { Rule = "aws-access-token", Regex = new Regex(@"(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}", RegexOptions.IgnoreCase | RegexOptions.Compiled) },
+            };
+        }
 
         _started = true;
         Task.Run(() => PoolingThread());
@@ -108,119 +118,52 @@ internal class HardcodedSecretsAnalyzer
     {
         while (_started)
         {
-            var waf = Security.Instance.WafInitResult?.Waf;
-            if (waf != null)
+            var userStrings = new UserStringInterop[100];
+            int userStringLen = NativeMethods.GetUserStrings(userStrings.Length, userStrings);
+            if (userStringLen > 0)
             {
-                var timeout = Security.Instance.Settings.WafTimeoutMicroSeconds;
-                var userStrings = new UserStringInterop[100];
-                int userStringLen = NativeMethods.GetUserStrings(userStrings.Length, userStrings);
-                if (userStringLen > 0)
+                List<Vulnerability> vulnerabilities = new List<Vulnerability>();
+
+                for (int x = 0; x < userStringLen; x++)
                 {
-                    List<Vulnerability> vulnerabilities = new List<Vulnerability>();
-
-                    for (int x = 0; x < userStringLen; x++)
+                    var value = Marshal.PtrToStringUni(userStrings[x].Value);
+                    var match = CheckSecret(value!);
+                    if (!string.IsNullOrEmpty(match))
                     {
-                        using var context = waf.CreateContext();
-                        if (context != null)
-                        {
-                            var value = Marshal.PtrToStringUni(userStrings[x].Value);
-                            if (CheckSecret(context!, value!, timeout))
-                            {
-                                var location = Marshal.PtrToStringUni(userStrings[x].Location);
-                                vulnerabilities.Add(new Vulnerability(
-                                    VulnerabilityTypeName.HardcodedSecret,
-                                    (VulnerabilityTypeName.HardcodedSecret + ":" + location! + ":" + value!).GetStaticHashCode(),
-                                    new Location(location!),
-                                    new Evidence(value!),
-                                    IntegrationId.HardcodedSecret));
-                            }
-                        }
-                    }
-
-                    if (vulnerabilities.Count > 0)
-                    {
-                        IastModule.OnHardcodedSecret(vulnerabilities);
+                        var location = Marshal.PtrToStringUni(userStrings[x].Location);
+                        vulnerabilities.Add(new Vulnerability(
+                            VulnerabilityTypeName.HardcodedSecret,
+                            (VulnerabilityTypeName.HardcodedSecret + ":" + location!).GetStaticHashCode(),
+                            new Location(location!),
+                            new Evidence(match!),
+                            IntegrationId.HardcodedSecret));
                     }
                 }
+
+                if (vulnerabilities.Count > 0)
+                {
+                    IastModule.OnHardcodedSecret(vulnerabilities);
+                }
+
+                if (userStringLen == userStrings.Length) { continue; }
             }
 
             _waitEvent.Wait(10_000);
         }
     }
 
-    private void CurrentDomain_AssemblyLoad(object? sender, AssemblyLoadEventArgs args)
+    internal static string? CheckSecret(string secret)
     {
-        Task.Run(() => ProcessAssemblies(args.LoadedAssembly));
-    }
-
-    internal void ProcessAssemblies(params Assembly[] assemblies)
-    {
-        var waf = Security.Instance.WafInitResult?.Waf;
-        if (waf != null)
+        if (_secretRules == null) { return null; }
+        foreach (var rule in _secretRules)
         {
-            foreach (var assembly in assemblies)
+            if (rule.Regex.IsMatch(secret))
             {
-                if (IsExcluded(assembly)) { continue; }
-                var secrets = ProcessAssembly(waf, Security.Instance.Settings.WafTimeoutMicroSeconds, assembly);
-                if (secrets.Count > 0)
-                {
-                    List<Vulnerability> vulnerabilities = new List<Vulnerability>();
-                    var location = assembly.Location;
-                    foreach (var secret in secrets)
-                    {
-                        vulnerabilities.Add(new Vulnerability(
-                            VulnerabilityTypeName.HardcodedSecret,
-                            (VulnerabilityTypeName.HardcodedSecret + ":" + location + ":" + secret).GetStaticHashCode(),
-                            new Location(location),
-                            new Evidence(secret),
-                            IntegrationId.HardcodedSecret));
-                    }
-
-                    IastModule.OnHardcodedSecret(vulnerabilities);
-                }
+                return rule.Rule;
             }
         }
-    }
 
-    private static List<string> ProcessAssembly(IWaf waf, ulong timeout, Assembly assembly)
-    {
-        List<string> res = new List<string>();
-        try
-        {
-            using var fs = new FileStream(assembly.Location, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var peReader = new PEReader(fs);
-            MetadataReader mr = peReader.GetMetadataReader();
-
-            UserStringHandle userStringHandle = mr.GetNextHandle(new UserStringHandle());
-            while (!userStringHandle.IsNil)
-            {
-                var userString = mr.GetUserString(userStringHandle);
-                using var context = waf.CreateContext();
-                if (context != null)
-                {
-                    if (CheckSecret(context, userString, timeout))
-                    {
-                        res.Add(userString);
-                    }
-                }
-
-                userStringHandle = mr.GetNextHandle(userStringHandle);
-            }
-        }
-        catch (Exception err)
-        {
-            Log.Warning(err, "Error processing assembly {0}", assembly);
-        }
-
-        return res;
-    }
-
-    internal static bool CheckSecret(IContext context, string secret, ulong timeout)
-    {
-        var args = new Dictionary<string, object> { { "hardcoded.secret", secret } };
-
-        var result = context.Run(args, timeout);
-        return (result != null && result.ReturnCode == ReturnCode.Match);
+        return null;
     }
 
     internal static void Initialize()
@@ -274,8 +217,13 @@ internal class HardcodedSecretsAnalyzer
         {
             _started = false;
             _waitEvent.Set();
-            AppDomain.CurrentDomain.AssemblyLoad -= CurrentDomain_AssemblyLoad;
         }
         catch { }
+    }
+
+    private struct SecretRegex
+    {
+        public string Rule;
+        public Regex Regex;
     }
 }

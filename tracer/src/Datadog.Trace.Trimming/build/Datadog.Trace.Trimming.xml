@@ -406,13 +406,6 @@
    <assembly fullname="System.Reflection.Emit.Lightweight">
       <type fullname="System.Reflection.Emit.DynamicMethod" />
    </assembly>
-   <assembly fullname="System.Reflection.Metadata">
-      <type fullname="System.Reflection.Metadata.Ecma335.MetadataReaderExtensions" />
-      <type fullname="System.Reflection.Metadata.MetadataReader" />
-      <type fullname="System.Reflection.Metadata.PEReaderExtensions" />
-      <type fullname="System.Reflection.Metadata.UserStringHandle" />
-      <type fullname="System.Reflection.PortableExecutable.PEReader" />
-   </assembly>
    <assembly fullname="System.Reflection.Primitives">
       <type fullname="System.Reflection.Emit.OpCode" />
       <type fullname="System.Reflection.Emit.OpCodes" />
