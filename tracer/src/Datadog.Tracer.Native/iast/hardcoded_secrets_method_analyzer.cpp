@@ -29,7 +29,7 @@ bool HardcodedSecretsMethodAnalyzer::ProcessMethod(MethodInfo* method)
                 auto userString = module->GetUserString(pInstr->m_Arg32);
                 if (methodName.size() == 0)
                 {
-                    methodName = method->GetFullName(true);
+                    methodName = method->GetFullName(false);
                 }
                 userStrings.push_back({methodName, userString});
             }

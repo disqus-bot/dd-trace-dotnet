@@ -11,12 +11,13 @@ internal readonly struct Location
 {
     public Location(string method)
     {
-        int index = method.LastIndexOf(":");
-        int line = 0;
-        if (index >= 0 && int.TryParse(method.Substring(index + 1), out line))
+        int index = method.LastIndexOf("::");
+        if (index >= 0)
         {
-            Method = method.Substring(0, index);
-            Line = line;
+            Path = method.Substring(0, index);
+            Method = method.Substring(index + 2);
+            index = Method.IndexOf("(");
+            if (index > 0) { Method = Method.Substring(0, index); }
         }
         else
         {

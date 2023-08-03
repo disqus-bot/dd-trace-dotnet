@@ -122,8 +122,6 @@ internal class HardcodedSecretsAnalyzer
             int userStringLen = NativeMethods.GetUserStrings(userStrings.Length, userStrings);
             if (userStringLen > 0)
             {
-                List<Vulnerability> vulnerabilities = new List<Vulnerability>();
-
                 for (int x = 0; x < userStringLen; x++)
                 {
                     var value = Marshal.PtrToStringUni(userStrings[x].Value);
@@ -131,18 +129,13 @@ internal class HardcodedSecretsAnalyzer
                     if (!string.IsNullOrEmpty(match))
                     {
                         var location = Marshal.PtrToStringUni(userStrings[x].Location);
-                        vulnerabilities.Add(new Vulnerability(
+                        IastModule.OnHardcodedSecret(new Vulnerability(
                             VulnerabilityTypeName.HardcodedSecret,
                             (VulnerabilityTypeName.HardcodedSecret + ":" + location!).GetStaticHashCode(),
                             new Location(location!),
                             new Evidence(match!),
                             IntegrationId.HardcodedSecret));
                     }
-                }
-
-                if (vulnerabilities.Count > 0)
-                {
-                    IastModule.OnHardcodedSecret(vulnerabilities);
                 }
 
                 if (userStringLen == userStrings.Length) { continue; }
