@@ -49,12 +49,13 @@ enum FUNCTION_ID
 };
 
 // counters: one byte per function
+__attribute__((visibility("hidden")))
 __thread unsigned long long functions_entered_counter = 0;
 
 // this function is called by the profiler
-unsigned long long dd_inside_wrapped_functions()
+unsigned int dd_inside_wrapped_functions()
 {
-    return functions_entered_counter;
+    return functions_entered_counter != 0 ? 1 : __dd_inside_io_wrapped_functions() != 0 ? 1 : 0;
 }
 
 /* Function pointers to hold the value of the glibc functions */

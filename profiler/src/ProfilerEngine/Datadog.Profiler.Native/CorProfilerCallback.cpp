@@ -17,6 +17,7 @@
 #include "cgroup.h"
 #include <signal.h>
 #include <libunwind.h>
+#include "../Datadog.Profiler.Native.Linux/SystemCallsShield.h"
 #endif
 
 #include "AllocationsProvider.h"
@@ -51,23 +52,6 @@
 #include "shared/src/native-src/environment_variables.h"
 #include "shared/src/native-src/pal.h"
 #include "shared/src/native-src/string.h"
-
-// The following macros are used to construct the profiler file:
-#ifdef _WINDOWS
-#define LIBRARY_FILE_EXTENSION ".dll"
-#elif LINUX
-#define LIBRARY_FILE_EXTENSION ".so"
-#elif MACOS
-#define LIBRARY_FILE_EXTENSION ".dylib"
-#else
-Error("unknown platform");
-#endif
-
-#ifdef BIT64
-#define PROFILER_LIBRARY_BINARY_FILE_NAME WStr("Datadog.Profiler.Native" LIBRARY_FILE_EXTENSION)
-#else
-#define PROFILER_LIBRARY_BINARY_FILE_NAME WStr("Datadog.Profiler.Native" LIBRARY_FILE_EXTENSION)
-#endif
 
 IClrLifetime* CorProfilerCallback::GetClrLifetime() const
 {
@@ -849,6 +833,11 @@ HRESULT STDMETHODCALLTYPE CorProfilerCallback::Initialize(IUnknown* corProfilerI
 
     _pConfiguration = std::make_unique<Configuration>();
 
+#ifdef LINUX
+    // This service must be started before any profiler to prevent interrupted non restartable system calls
+    _systemCallsHandler = RegisterService<SystemCallsShield>(_pConfiguration.get());
+#endif
+
     PrintEnvironmentVariables();
 
     double coresThreshold = _pConfiguration->MinimumCores();
@@ -1284,6 +1273,11 @@ HRESULT STDMETHODCALLTYPE CorProfilerCallback::ThreadDestroyed(ThreadID threadId
         pThreadInfo->SetThreadDestroyed();
     }
 
+
+#ifdef LINUX
+    _systemCallsHandler->Unregister();
+#endif
+
     return S_OK;
 }
 
@@ -1320,6 +1314,10 @@ HRESULT STDMETHODCALLTYPE CorProfilerCallback::ThreadAssignedToOSThread(ThreadID
 #endif
 
 #ifdef LINUX
+    std::shared_ptr<ManagedThreadInfo> threadInfo;
+    _pManagedThreadList->TryGetCurrentThreadInfo(threadInfo);
+
+    _systemCallsHandler->Register(threadInfo);
     // TL;DR prevent the profiler from deadlocking application thread on malloc
     // When calling uwn_backtraceXX, libunwind will initialize data structures for the current
     // thread using TLS (Thread Local Storage).
@@ -1340,6 +1338,7 @@ HRESULT STDMETHODCALLTYPE CorProfilerCallback::ThreadAssignedToOSThread(ThreadID
     }
 #endif
     _pManagedThreadList->SetThreadOsInfo(managedThreadId, osThreadId, dupOsThreadHandle);
+
 
     return S_OK;
 }
