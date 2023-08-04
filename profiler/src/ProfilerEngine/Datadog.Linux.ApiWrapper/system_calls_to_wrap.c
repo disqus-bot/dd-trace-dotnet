@@ -13,16 +13,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define SET_AS_ENTERED(B_) functions_entered_counters = (functions_entered_counters & ~(1 << B_)) | (1 << B_)
-#define SET_AS_EXITED(B_) functions_entered_counters = (functions_entered_counters & ~(1 << B_))
-
-__attribute__((visibility("hidden"))) __thread unsigned long functions_entered_counters;
-
-__attribute__((visibility("hidden")))
-unsigned long __dd_inside_io_wrapped_functions()
-{
-    return functions_entered_counters;
-}
+#include <stdio.h>
 
 #define END(...) END_(__VA_ARGS__)
 // cppcheck-suppress preprocessorErrorDirective
@@ -109,5 +100,3 @@ WRAPPED_FUNCTION(24, int, clock_nanosleep, (clockid_t, clockid)(int, flags)(cons
 WRAPPED_FUNCTION(25, int, nanosleep, (const struct timespec*, req)(struct timespec*, rem))
 WRAPPED_FUNCTION(26, int, usleep, (useconds_t, usec))
 WRAPPED_FUNCTION(27, int, io_getevents, (aio_context_t, ctx_id)(long, min_nr)(long, nr)(struct io_event*, events)(struct timespec*, timeout))
-// BEWARE when adding a new function, functions_entered_counters is 32-bit integer. So if you have add more than 32 functions, do not forget to change
-// the type of functions_entered_counters into unsigned long long (64-bit integer)

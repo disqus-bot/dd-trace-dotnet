@@ -33,7 +33,8 @@ namespace Samples.Computer01
         InnerMethods,
         LineNumber,
         NullThreadNameBug,
-        MethodSignature
+        MethodSignature,
+        LinuxSystemCallsInterruption
     }
 
     public class Program
