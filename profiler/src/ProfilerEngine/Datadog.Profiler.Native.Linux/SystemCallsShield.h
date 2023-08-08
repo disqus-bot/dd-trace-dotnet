@@ -27,8 +27,9 @@ public:
 private:
     static SystemCallsShield* Instance;
     static int HandleSystemCalls(int state);
+    static bool ShouldEnable(IConfiguration* configuration);
 
     int HandleSystemCalls(bool acquireOrRelease);
 
-    bool _enabled;
+    bool _isEnabled;
 };

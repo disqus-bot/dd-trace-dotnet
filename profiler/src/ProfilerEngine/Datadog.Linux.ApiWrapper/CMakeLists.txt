@@ -9,7 +9,7 @@ project("Datadog.Linux.ApiWrapper" VERSION 2.37.0)
 # ******************************************************
 
 # Sets compiler options
-add_compile_options(-std=c11 -fPIC)
+add_compile_options(-std=c11 -fPIC -gdwarf-4)
 
 
 if (DEFINED ENV{IsAlpine} AND "$ENV{IsAlpine}" MATCHES "true")

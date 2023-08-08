@@ -7,16 +7,16 @@ include(GoogleTest)
 set(CMAKE_CXX_STANDARD 17)
 
 # Sets compiler options
-add_compile_options(-fPIC -fms-extensions)
+add_compile_options(-fPIC -fms-extensions -gdwarf-4)
 add_compile_options(-DPAL_STDCPP_COMPAT -DPLATFORM_UNIX -DUNICODE)
 add_compile_options(-Wno-invalid-noreturn -Wno-macro-redefined -Wc++17-extensions -DDD_TEST)
 
 if (RUN_ASAN)
-    add_compile_options(-g -fsanitize=address -fno-omit-frame-pointer)
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
 endif()
 
 if (RUN_UBSAN)
-    add_compile_options(-fsanitize=undefined -g -fno-omit-frame-pointer -fno-sanitize-recover=all)
+    add_compile_options(-fsanitize=undefined -fno-omit-frame-pointer -fno-sanitize-recover=all)
 endif()
 
 if(ISLINUX)

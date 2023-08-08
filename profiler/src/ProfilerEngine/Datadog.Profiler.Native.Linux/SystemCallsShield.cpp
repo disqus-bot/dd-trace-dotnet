@@ -10,20 +10,28 @@ thread_local ManagedThreadInfo* managedThreadInfo = nullptr;
 SystemCallsShield* SystemCallsShield::Instance = nullptr;
 
 extern "C" int (*volatile __dd_acquire_release_barrier)(int) __attribute__((weak));
+// check if this symbol is present to know if the wrapper is loaded
+extern "C" unsigned long long dd_inside_wrapped_functions() __attribute__((weak));
 
 SystemCallsShield::SystemCallsShield(IConfiguration* configuration) :
-    // Walltime and CPU profilers are the only ones that could interrupt a system calls
-    // (It might not be obvious, for the CPU profiler we could be in a race
-    _enabled{configuration->IsWallTimeProfilingEnabled() || configuration->IsCpuProfilingEnabled()}
+    _isEnabled{ShouldEnable(configuration)}
 {
+}
+
+bool SystemCallsShield::ShouldEnable(IConfiguration* configuration)
+{
+    // Make sure the wrapper is present.
+    // Walltime and CPU profilers are the only ones that could interrupt a system calls
+    // (It might not be obvious, for the CPU profiler we could be in a race)
+    return dd_inside_wrapped_functions != nullptr && configuration->IsWallTimeProfilingEnabled() || configuration->IsCpuProfilingEnabled();
 }
 
 bool SystemCallsShield::Start()
 {
-    if (_enabled)
+    if (_isEnabled)
     {
-        __dd_acquire_release_barrier = SystemCallsShield::HandleSystemCalls;
         Instance = this;
+        __dd_acquire_release_barrier = SystemCallsShield::HandleSystemCalls;
     }
 
     return true;
@@ -31,8 +39,11 @@ bool SystemCallsShield::Start()
 
 bool SystemCallsShield::Stop()
 {
-    __dd_acquire_release_barrier = nullptr;
-    Instance = nullptr;
+    if (_isEnabled)
+    {
+        __dd_acquire_release_barrier = nullptr;
+        Instance = nullptr;
+    }
 
     return true;
 }
@@ -44,12 +55,18 @@ const char* SystemCallsShield::GetName()
 
 void SystemCallsShield::Register(std::shared_ptr<ManagedThreadInfo> const& threadInfo)
 {
-    managedThreadInfo = threadInfo.get();
+    if (_isEnabled)
+    {
+        managedThreadInfo = threadInfo.get();
+    }
 }
 
 void SystemCallsShield::Unregister()
 {
-    managedThreadInfo = nullptr;
+    if (_isEnabled)
+    {
+        managedThreadInfo = nullptr;
+    }
 }
 
 int SystemCallsShield::HandleSystemCalls(int state)
@@ -63,11 +80,6 @@ int SystemCallsShield::HandleSystemCalls(int state)
 
 int SystemCallsShield::HandleSystemCalls(bool acquireOrRelease)
 {
-    if (!_enabled)
-    {
-        return 0;
-    }
-
     auto threadInfo = managedThreadInfo;
     if (threadInfo == nullptr)
     {
