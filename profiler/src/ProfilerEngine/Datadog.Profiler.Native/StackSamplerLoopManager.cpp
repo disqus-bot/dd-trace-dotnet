@@ -468,6 +468,11 @@ bool StackSamplerLoopManager::AllowStackWalk(std::shared_ptr<ManagedThreadInfo> 
         return false;
     }
 
+    if (!pThreadInfo->_safeToInterrupt)
+    {
+        pThreadInfo->GetStackWalkLock().Release();
+        return false;
+    }
     _pTargetThread = std::move(pThreadInfo);
     _isTargetThreadSuspended = false;
     _isForceTerminated = false;

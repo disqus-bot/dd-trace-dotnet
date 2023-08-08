@@ -34,7 +34,7 @@ namespace Samples.Computer01
         LineNumber,
         NullThreadNameBug,
         MethodSignature,
-        LinuxSystemCallsInterruption
+        OpenLdapCrash
     }
 
     public class Program

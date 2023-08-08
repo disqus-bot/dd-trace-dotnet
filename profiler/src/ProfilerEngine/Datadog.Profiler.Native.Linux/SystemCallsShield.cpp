@@ -6,6 +6,9 @@
 #include "IConfiguration.h"
 #include "ManagedThreadInfo.h"
 
+#include <sys/syscall.h>
+#include <unistd.h>
+
 thread_local ManagedThreadInfo* managedThreadInfo = nullptr;
 SystemCallsShield* SystemCallsShield::Instance = nullptr;
 
@@ -23,7 +26,7 @@ bool SystemCallsShield::ShouldEnable(IConfiguration* configuration)
     // Make sure the wrapper is present.
     // Walltime and CPU profilers are the only ones that could interrupt a system calls
     // (It might not be obvious, for the CPU profiler we could be in a race)
-    return dd_inside_wrapped_functions != nullptr && configuration->IsWallTimeProfilingEnabled() || configuration->IsCpuProfilingEnabled();
+    return dd_inside_wrapped_functions != nullptr && (configuration->IsWallTimeProfilingEnabled() || configuration->IsCpuProfilingEnabled());
 }
 
 bool SystemCallsShield::Start()
@@ -86,12 +89,25 @@ int SystemCallsShield::HandleSystemCalls(bool acquireOrRelease)
         return 0;
     }
 
+    static thread_local int InThere = 0;
     if (acquireOrRelease)
     {
+        if (InThere++ > 0)
+        {
+            return 1;
+        }
+
         threadInfo->GetStackWalkLock().Acquire();
+        threadInfo->_safeToInterrupt = false;
+        threadInfo->GetStackWalkLock().Release();
         return 1;
     }
 
-    threadInfo->GetStackWalkLock().Release();
+    InThere--;
+    if (InThere == 0)
+    {
+        threadInfo->_safeToInterrupt = true;
+    }
+
     return 0;
 }

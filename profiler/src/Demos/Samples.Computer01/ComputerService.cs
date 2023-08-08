@@ -43,6 +43,10 @@ namespace Samples.Computer01
         private NullThreadNameBugCheck _nullThreadNameBugCheck;
         private MethodsSignature _methodsSignature;
 
+#if NET5_0_OR_GREATER
+        private OpenLdapCrash _openldapCrash;
+#endif
+
         public void StartService(Scenario scenario, int nbThreads, int parameter)
         {
             _scenario = scenario;
@@ -146,6 +150,12 @@ namespace Samples.Computer01
                 case Scenario.MethodSignature:
                     StartMethodsSignature();
                     break;
+
+#if NET5_0_OR_GREATER
+                case Scenario.OpenLdapCrash:
+                    StartOpenLdapCrash();
+                    break;
+#endif
                 default:
                     throw new ArgumentOutOfRangeException(nameof(scenario), $"Unsupported scenario #{_scenario}");
             }
@@ -251,6 +261,12 @@ namespace Samples.Computer01
                 case Scenario.MethodSignature:
                     StopMethodsSignature();
                     break;
+
+#if NET5_0_OR_GREATER
+                case Scenario.OpenLdapCrash:
+                    StopOpenLdapCrash();
+                    break;
+#endif
             }
         }
 
@@ -361,6 +377,12 @@ namespace Samples.Computer01
                     case Scenario.MethodSignature:
                         RunMethodsSignature();
                         break;
+
+#if NET5_0_OR_GREATER
+                    case Scenario.OpenLdapCrash:
+                        RunOpenLdapCrash();
+                        break;
+#endif
 
                     default:
                         throw new ArgumentOutOfRangeException(nameof(scenario), $"Unsupported scenario #{_scenario}");
@@ -521,6 +543,14 @@ namespace Samples.Computer01
             _methodsSignature.Start();
         }
 
+#if NET5_0_OR_GREATER
+        private void StartOpenLdapCrash()
+        {
+            _openldapCrash = new OpenLdapCrash();
+            _openldapCrash.Start();
+        }
+#endif
+
         private void StopComputer()
         {
             using (_computer)
@@ -636,6 +666,13 @@ namespace Samples.Computer01
         {
             _methodsSignature.Stop();
         }
+
+#if NET5_0_OR_GREATER
+        private void StopOpenLdapCrash()
+        {
+            _openldapCrash.Stop();
+        }
+#endif
 
         private void RunComputer()
         {
@@ -778,6 +815,14 @@ namespace Samples.Computer01
             var methodsSignature = new MethodsSignature();
             methodsSignature.Run();
         }
+
+#if NET5_0_OR_GREATER
+        private void RunOpenLdapCrash()
+        {
+            var openldapCrash = new OpenLdapCrash();
+            openldapCrash.Run();
+        }
+#endif
 
         public class MySpecialClassA
         {

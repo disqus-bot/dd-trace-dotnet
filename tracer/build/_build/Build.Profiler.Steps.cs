@@ -212,7 +212,9 @@ partial class Build
         .Executes(async () =>
         {
             // Exclude CpuLimitTest from this path: They are already launched in a specific step + specific setup
-            var filter = $"{(IsLinux ? "(Category!=WindowsOnly)" : "(Category!=LinuxOnly)")}&(Category!=CpuLimitTest)";
+            var filter = string.IsNullOrWhiteSpace(Filter) ?
+                            $"{(IsLinux ? "(Category!=WindowsOnly)" : "(Category!=LinuxOnly)")}&(Category!=CpuLimitTest)&(Category!=DockerOnly)" :
+                            Filter;
             await BuildAndRunProfilerIntegrationTestsInternal(filter);
         });
 

@@ -36,6 +36,7 @@ private:
     static std::uint32_t GenerateProfilerThreadInfoId();
 
 public:
+    bool _safeToInterrupt = true;
     explicit ManagedThreadInfo(ThreadID clrThreadId);
     ~ManagedThreadInfo() = default;
 
