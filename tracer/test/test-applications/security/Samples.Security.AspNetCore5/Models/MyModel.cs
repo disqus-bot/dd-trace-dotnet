@@ -7,7 +7,8 @@ namespace Samples.Security.AspNetCore5.Models
         public int Property3 { get; set; }
         public int Property4 { get; set; }
 
-        public override string ToString() => $"{Property}, {Property2}, {Property3}, {Property4}";
+        public decimal[] ArrayOfDecimals { get; set; }
 
+        public override string ToString() => $"{Property}, {Property2}, {Property3}, {Property4}";
     }
 }

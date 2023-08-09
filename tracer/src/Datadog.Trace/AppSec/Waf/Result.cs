@@ -26,11 +26,14 @@ namespace Datadog.Trace.AppSec.Waf
                 Data = JsonConvert.SerializeObject(events);
             }
 
+            Derivatives = returnStruct.Derivatives.DecodeMap();
             ShouldBlock = Actions.Contains("block");
             AggregatedTotalRuntime = aggregatedTotalRuntime;
             AggregatedTotalRuntimeWithBindings = aggregatedTotalRuntimeWithBindings;
             Timeout = returnStruct.Timeout;
         }
+
+        public Dictionary<string, object> Derivatives { get; }
 
         public ReturnCode ReturnCode => Encoder.DecodeReturnCode(returnCode);
 

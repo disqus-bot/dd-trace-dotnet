@@ -7075,5 +7075,85 @@
       ],
       "transformers": []
     }
+  ],
+  "preprocessors": [
+    {
+      "id": "preprocessor-001",
+      "generator": "extract_schema",
+      "conditions": [
+        {
+          "operator": "match_regex",
+          "parameters": {
+            "inputs": [
+              {
+                "address": "waf.context.settings",
+                "key_path": [
+                  "extract-schema"
+                ]
+              }
+            ],
+            "regex": "^true$",
+            "options": {
+              "case_sensitive": false,
+              "min_length": 4
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "mappings": [
+          {
+            "inputs": [
+              {
+                "address": "server.request.body"
+              }
+            ],
+            "output": "server.request.body.schema"
+          },
+          {
+            "inputs": [
+              {
+                "address": "server.request.query"
+              }
+            ],
+            "output": "server.request.query.schema"
+          },
+          {
+            "inputs": [
+              {
+                "address": "server.request.path_params"
+              }
+            ],
+            "output": "server.request.path_params.schema"
+          },
+          {
+            "inputs": [
+              {
+                "address": "server.request.headers.no_cookies"
+              }
+            ],
+            "output": "server.request.headers.schema"
+          },
+          {
+            "inputs": [
+              {
+                "address": "server.response.headers.no_cookies"
+              }
+            ],
+            "output": "server.response.headers.schema"
+          },
+          {
+            "inputs": [
+              {
+                "address": "server.response.body"
+              }
+            ],
+            "output": "server.response.body.schema"
+          }
+        ]
+      },
+      "evaluate": false,
+      "output": true
+    }
   ]
 }

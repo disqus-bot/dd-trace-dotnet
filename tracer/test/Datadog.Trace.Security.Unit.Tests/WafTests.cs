@@ -11,6 +11,7 @@ using Datadog.Trace.AppSec;
 using Datadog.Trace.AppSec.Waf;
 using Datadog.Trace.AppSec.Waf.NativeBindings;
 using Datadog.Trace.AppSec.Waf.ReturnTypes.Managed;
+using Datadog.Trace.Configuration;
 using Datadog.Trace.Security.Unit.Tests.Utils;
 using Datadog.Trace.Vendors.Newtonsoft.Json;
 using FluentAssertions;
@@ -94,8 +95,12 @@ namespace Datadog.Trace.Security.Unit.Tests
         [InlineData("/.adsensepostnottherenonobook", "security_scanner", "crs-913-120")]
         public void BodyAttack(string body, string flow, string rule) => Execute(AddressesConstants.RequestBody, body, flow, rule);
 
+        [Fact]
+        public void BodyAttackFact() => Execute(AddressesConstants.RequestBody, new Dictionary<string, object> { { "test", "test" }, { "property2", "test2" } }, "security_scanner", "crs-913-120");
+
         private void Execute(string address, object value, string flow, string rule)
         {
+            GlobalSettings.SetDebugEnabledInternal(true);
             var args = new Dictionary<string, object> { { address, value } };
             if (!args.ContainsKey(AddressesConstants.RequestUriRaw))
             {
@@ -107,7 +112,9 @@ namespace Datadog.Trace.Security.Unit.Tests
                 args.Add(AddressesConstants.RequestMethod, "GET");
             }
 
-            var initResult = Waf.Create(WafLibraryInvoker, string.Empty, string.Empty);
+            args.Add(AddressesConstants.WafContextSettings, new Dictionary<string, string> { { "extract-schema", "true" } });
+
+            var initResult = Waf.Create(WafLibraryInvoker, string.Empty, string.Empty, embeddedRulesetPath: @"C:\Repositories\dd-trace-dotnet\tracer\src\Datadog.Trace\AppSec\Waf\rule-set.json");
             using var waf = initResult.Waf;
             waf.Should().NotBeNull();
             using var context = waf.CreateContext();

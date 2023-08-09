@@ -68,6 +68,11 @@ internal readonly partial struct SecurityCoordinator
 
             Report(result.Data, result.AggregatedTotalRuntime, result.AggregatedTotalRuntimeWithBindings, result.ShouldBlock);
         }
+
+        if (result?.Derivatives.Count > 0)
+        {
+            ReportSchema(result.Derivatives);
+        }
     }
 
     private Dictionary<string, object> GetBasicRequestArgsForWaf()

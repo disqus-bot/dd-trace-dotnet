@@ -178,9 +178,9 @@ namespace Datadog.Trace.Agent.DiscoveryService
                         sleepDuration = GetNextSleepDuration(sleepDuration);
                     }
                 }
-                catch (Exception exception)
+                catch (Exception)
                 {
-                    Log.Warning(exception, "Error discovering available agent services");
+                    // Log.Warning(exception, "Error discovering available agent services");
                     sleepDuration = GetNextSleepDuration(sleepDuration);
                 }
 

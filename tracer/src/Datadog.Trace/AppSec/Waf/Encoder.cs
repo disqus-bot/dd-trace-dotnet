@@ -116,9 +116,12 @@ namespace Datadog.Trace.AppSec.Waf
                     null => CreateNativeString(string.Empty, applyLimits, wafLibraryInvoker),
                     string s => CreateNativeString(s, applyLimits, wafLibraryInvoker),
                     JValue jv => CreateNativeString(jv.Value?.ToString() ?? string.Empty, applyLimits, wafLibraryInvoker),
-                    int i => CreateNativeString(i.ToString(), applyLimits, wafLibraryInvoker),
-                    long i => CreateNativeString(i.ToString(), applyLimits, wafLibraryInvoker),
-                    uint i => CreateNativeString(i.ToString(), applyLimits, wafLibraryInvoker),
+                    int i => CreateNativeLong(i, wafLibraryInvoker),
+                    long i => CreateNativeLong(i, wafLibraryInvoker),
+                    uint i => CreateNativeLong(i, wafLibraryInvoker),
+                    float i => CreateNativeFloat(i, wafLibraryInvoker),
+                    double i => CreateNativeFloat((float)i, wafLibraryInvoker),
+                    decimal i => CreateNativeFloat((float)i, wafLibraryInvoker),
                     ulong i => CreateNativeString(i.ToString(), applyLimits, wafLibraryInvoker),
                     bool b => CreateNativeBool(b, wafLibraryInvoker),
                     IEnumerable<KeyValuePair<string, JToken>> objDict => EncodeDictionary(objDict.Select(x => new KeyValuePair<string, object>(x.Key, x.Value)), argCache, remainingDepth, applyLimits, wafLibraryInvoker),
@@ -130,6 +133,7 @@ namespace Datadog.Trace.AppSec.Waf
                     IList<JToken> objs => EncodeList(objs.Select(x => (object)x), argCache, remainingDepth, applyLimits, wafLibraryInvoker),
                     IList<string> objs => EncodeList(objs.Select(x => (object)x), argCache, remainingDepth, applyLimits, wafLibraryInvoker),
                     IList<object> objs => EncodeList(objs, argCache, remainingDepth, applyLimits, wafLibraryInvoker),
+                    IList<int> objs => EncodeList(objs.Select(x => (object)x), argCache, remainingDepth, applyLimits, wafLibraryInvoker),
                     _ => EncodeUnknownType(o, wafLibraryInvoker),
                 };
 
@@ -208,10 +212,11 @@ namespace Datadog.Trace.AppSec.Waf
             return new Obj(wafLibraryInvoker.ObjectStringLength(encodeString, Convert.ToUInt64(encodeString.Length)));
         }
 
-        private static Obj CreateNativeBool(bool b, WafLibraryInvoker wafLibraryInvoker)
-        {
-            return new Obj(wafLibraryInvoker.ObjectBool(b));
-        }
+        private static Obj CreateNativeBool(bool b, WafLibraryInvoker wafLibraryInvoker) => new(wafLibraryInvoker.ObjectBool(b));
+
+        private static Obj CreateNativeLong(long b, WafLibraryInvoker wafLibraryInvoker) => new(wafLibraryInvoker.ObjectSigned(b));
+
+        private static Obj CreateNativeFloat(float b, WafLibraryInvoker wafLibraryInvoker) => new(wafLibraryInvoker.ObjectFloat(b));
 
         public static string FormatArgs(object o)
         {

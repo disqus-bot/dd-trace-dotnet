@@ -43,11 +43,10 @@ internal static class SecurityCoordinatorHelpers
                 if (!transport.IsBlocked)
                 {
                     var securityCoordinator = new SecurityCoordinator(security, httpContext, span, transport);
-                    var args = new Dictionary<string, object>
-                    {
-                        { AddressesConstants.ResponseHeaderNoCookies, SecurityCoordinator.ExtractHeadersFromRequest(headers) },
-                        { AddressesConstants.ResponseStatus, httpContext.Response.StatusCode.ToString() },
-                    };
+                    var args = new Dictionary<string, object> { { AddressesConstants.ResponseHeaderNoCookies, SecurityCoordinator.ExtractHeadersFromRequest(headers) }, { AddressesConstants.ResponseStatus, httpContext.Response.StatusCode.ToString() }, };
+
+                    args.Add(AddressesConstants.WafContextSettings, new Dictionary<string, string> { { "extract-schema", "true" } });
+
                     var result = securityCoordinator.RunWaf(args);
                     securityCoordinator.CheckAndBlock(result);
                 }
