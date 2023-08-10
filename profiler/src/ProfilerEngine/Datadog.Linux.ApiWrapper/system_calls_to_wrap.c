@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <dlfcn.h>
+#include <errno.h>
 #include <linux/aio_abi.h>
 #include <poll.h>
 #include <signal.h>
@@ -34,27 +35,35 @@
 #define VAR_LOOP_A_END
 #define VAR_LOOP_B_END
 
-#define PROTECT_CALL(stmt)                                  \
-    int barrier_acquired = 0;                               \
-    if (__dd_acquire_release_barrier != NULL)               \
-        barrier_acquired = __dd_acquire_release_barrier(1); \
-    stmt;                                                   \
-    if (barrier_acquired != 0)                              \
-        __dd_acquire_release_barrier(0);
+#define PROTECT_CALL(return_type, expr)                                                                  \
+    int barrier_acquired = 0;                                                                            \
+    int interrupted_by_profiler = 0;                                                                     \
+    if (__dd_acquire_release_barrier != NULL)                                                            \
+        barrier_acquired = __dd_acquire_release_barrier(&interrupted_by_profiler);                       \
+    return_type rc;                                                                                      \
+    do                                                                                                   \
+    {                                                                                                    \
+        /* TODO with timeout*/                                                                           \
+        interrupted_by_profiler = 0;                                                                     \
+        rc = expr;                                                                                       \
+        /* If the call was interrupted by a signal and the signal was sent by the profiler, just retry*/ \
+    } while (errno == EINTR && rc == -1L && interrupted_by_profiler != 0);                               \
+    if (barrier_acquired != 0)                                                                           \
+        __dd_acquire_release_barrier(NULL);
 
-#define WRAPPED_FUNCTION(bit_offset, return_type, name, parameters)              \
-    static return_type (*__real_##name)(END(PARAMS_LOOP_0 parameters)) = NULL;   \
-                                                                                 \
-    return_type name(END(PARAMS_LOOP_0 parameters))                              \
-    {                                                                            \
-        if (__real_##name == NULL)                                               \
-        {                                                                        \
-            __real_##name = dlsym(RTLD_NEXT, #name);                             \
-        }                                                                        \
-                                                                                 \
-        PROTECT_CALL(return_type rc = __real_##name(END(VAR_LOOP_0 parameters))) \
-                                                                                 \
-        return rc;                                                               \
+#define WRAPPED_FUNCTION(bit_offset, return_type, name, parameters)            \
+    static return_type (*__real_##name)(END(PARAMS_LOOP_0 parameters)) = NULL; \
+                                                                               \
+    return_type name(END(PARAMS_LOOP_0 parameters))                            \
+    {                                                                          \
+        if (__real_##name == NULL)                                             \
+        {                                                                      \
+            __real_##name = dlsym(RTLD_NEXT, #name);                           \
+        }                                                                      \
+                                                                               \
+        PROTECT_CALL(return_type, __real_##name(END(VAR_LOOP_0 parameters)))   \
+                                                                               \
+        return rc;                                                             \
     }
 
 #ifdef __GLIBC__
@@ -66,7 +75,7 @@
 #endif
 
 // make it volatile to prevent optimization
-int (*volatile __dd_acquire_release_barrier)(int) = NULL;
+int (*volatile __dd_acquire_release_barrier)(int*) = NULL;
 
 WRAPPED_FUNCTION(0, int, accept, (int, sockfd)(struct sockaddr*, addr)(socklen_t*, addrlen))
 WRAPPED_FUNCTION(1, int, accept4, (int, sockfd)(struct sockaddr*, addr)(socklen_t*, addrlen)(int, flags))

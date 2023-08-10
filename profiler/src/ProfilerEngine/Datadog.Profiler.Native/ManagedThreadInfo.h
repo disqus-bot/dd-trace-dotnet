@@ -86,6 +86,7 @@ public:
 
     inline std::string GetProfileThreadId();
     inline std::string GetProfileThreadName();
+    int* isInterruptedByProfiler;
 
 private:
     inline void BuildProfileThreadId();

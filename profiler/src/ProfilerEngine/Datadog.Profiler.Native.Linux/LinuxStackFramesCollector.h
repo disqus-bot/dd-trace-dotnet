@@ -82,6 +82,8 @@ private:
 
     std::int32_t CollectCallStackCurrentThread(void* ucontext);
 
+    void MarkAsInterrupted();
+
     ErrorStatistics _errorStatistics;
     bool _useBacktrace2;
 };

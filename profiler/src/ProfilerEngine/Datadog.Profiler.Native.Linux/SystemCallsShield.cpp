@@ -12,7 +12,7 @@
 thread_local ManagedThreadInfo* managedThreadInfo = nullptr;
 SystemCallsShield* SystemCallsShield::Instance = nullptr;
 
-extern "C" int (*volatile __dd_acquire_release_barrier)(int) __attribute__((weak));
+extern "C" int (*volatile __dd_acquire_release_barrier)(int*) __attribute__((weak));
 // check if this symbol is present to know if the wrapper is loaded
 extern "C" unsigned long long dd_inside_wrapped_functions() __attribute__((weak));
 
@@ -72,16 +72,16 @@ void SystemCallsShield::Unregister()
     }
 }
 
-int SystemCallsShield::HandleSystemCalls(int state)
+int SystemCallsShield::HandleSystemCalls(int* state)
 {
     if (Instance == nullptr)
     {
         return 0;
     }
-    return Instance->HandleSystemCalls(state != 0);
+    return Instance->LinkWrapperToProfiler(state);
 }
 
-int SystemCallsShield::HandleSystemCalls(bool acquireOrRelease)
+int SystemCallsShield::LinkWrapperToProfiler(int* state)
 {
     auto threadInfo = managedThreadInfo;
     if (threadInfo == nullptr)
@@ -89,25 +89,13 @@ int SystemCallsShield::HandleSystemCalls(bool acquireOrRelease)
         return 0;
     }
 
-    static thread_local int InThere = 0;
-    if (acquireOrRelease)
+    if (state != nullptr)
     {
-        if (InThere++ > 0)
-        {
-            return 1;
-        }
-
-        threadInfo->GetStackWalkLock().Acquire();
-        threadInfo->_safeToInterrupt = false;
-        threadInfo->GetStackWalkLock().Release();
+        threadInfo->isInterruptedByProfiler = state;
         return 1;
     }
 
-    InThere--;
-    if (InThere == 0)
-    {
-        threadInfo->_safeToInterrupt = true;
-    }
+    threadInfo->isInterruptedByProfiler = nullptr;
 
     return 0;
 }

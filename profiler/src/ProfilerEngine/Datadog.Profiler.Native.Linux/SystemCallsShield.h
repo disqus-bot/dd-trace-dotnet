@@ -26,10 +26,10 @@ public:
 
 private:
     static SystemCallsShield* Instance;
-    static int HandleSystemCalls(int state);
+    static int HandleSystemCalls(int* state);
     static bool ShouldEnable(IConfiguration* configuration);
 
-    int HandleSystemCalls(bool acquireOrRelease);
+    int LinkWrapperToProfiler(int* state);
 
     bool _isEnabled;
 };
