@@ -55,6 +55,7 @@ RUN apk update \
         musl-dbg \
         cppcheck \
         linux-headers \
+        libldap \
     && gem install --version 1.6.0 --user-install git \
     && gem install --version 2.7.6 dotenv \
     && gem install --version 1.14.2 --minimal-deps --no-document fpm

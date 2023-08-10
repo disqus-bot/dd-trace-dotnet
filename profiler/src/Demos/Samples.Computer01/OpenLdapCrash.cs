@@ -19,15 +19,29 @@ namespace Samples.Computer01
         {
             var uri = Environment.GetEnvironmentVariable("LDAP_SERVER") ?? "localhost:389";
 
-            (_serverHostname, _serverPort) = uri.IndexOf(':') switch
+            try
             {
-                var colonIdx when colonIdx > -1 => (uri[..colonIdx], int.Parse(uri.AsSpan(colonIdx + 1))),
-                _ => (uri, 389)
-            };
+                (_serverHostname, _serverPort) = uri.IndexOf(':') switch
+                {
+                    var colonIdx when colonIdx > -1 => (uri[..colonIdx], int.Parse(uri.AsSpan(colonIdx + 1))),
+                    _ => (uri, 389)
+                };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(
+                    $"[Error] Failed to parse ldap server connection information. LDAP_SERVER env var: {Environment.GetEnvironmentVariable("LDAP_SERVER")}" +
+                    $" , Uri: {uri}. Error: {e.Message}");
+            }
         }
 
         public override void OnProcess()
         {
+            if (_serverHostname == null)
+            {
+                return;
+            }
+
             ConnectToLdapServer();
         }
 
