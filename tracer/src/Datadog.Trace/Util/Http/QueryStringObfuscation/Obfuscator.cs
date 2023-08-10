@@ -34,14 +34,14 @@ namespace Datadog.Trace.Util.Http.QueryStringObfuscation
 
             var options =
                     RegexOptions.IgnoreCase
-                    | RegexOptions.Compiled;
+                    | RegexOptions.Compiled
+                    | RegexOptions.IgnorePatternWhitespace;
 
 #if NETCOREAPP3_1_OR_GREATER
             options |= RegexOptions.NonBacktracking;
 #endif
 
-            _regex =
-                new(pattern, options, _timeout);
+            _regex = new(pattern, options, _timeout);
         }
 
         internal override string Obfuscate(string queryString)
