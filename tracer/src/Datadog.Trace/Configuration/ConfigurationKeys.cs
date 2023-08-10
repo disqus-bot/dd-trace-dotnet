@@ -372,7 +372,7 @@ namespace Datadog.Trace.Configuration
 
         /// <summary>
         /// Configuration key for specifying a custom regex to obfuscate query strings.
-        /// Default value is in TracerSettings
+        /// Default value is in TracerSettingsConstants
         /// </summary>
         /// <seealso cref="TracerSettings.ObfuscationQueryStringRegex"/>
         public const string ObfuscationQueryStringRegex = "DD_TRACE_OBFUSCATION_QUERY_STRING_REGEXP";
