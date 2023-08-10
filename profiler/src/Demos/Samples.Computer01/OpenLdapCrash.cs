@@ -12,6 +12,20 @@ namespace Samples.Computer01
 {
     internal class OpenLdapCrash : ScenarioBase
     {
+        private readonly string _serverHostname;
+        private readonly int _serverPort;
+
+        public OpenLdapCrash()
+        {
+            var uri = Environment.GetEnvironmentVariable("LDAP_SERVER") ?? "localhost:389";
+
+            (_serverHostname, _serverPort) = uri.IndexOf(':') switch
+            {
+                var colonIdx when colonIdx > -1 => (uri[..colonIdx], int.Parse(uri.AsSpan(colonIdx + 1))),
+                _ => (uri, 389)
+            };
+        }
+
         public override void OnProcess()
         {
             ConnectToLdapServer();
@@ -21,15 +35,13 @@ namespace Samples.Computer01
         {
             try
             {
-                using (var ldapConnection = new LdapConnection(new LdapDirectoryIdentifier("localhost", 389), new NetworkCredential("cn=admin,dc=dd-trace-dotnet,dc=com", "Passw0rd"), AuthType.Basic))
-                {
-                    ldapConnection.SessionOptions.ProtocolVersion = 3;
-                    ldapConnection.Bind();
-                }
+                using var ldapConnection = new LdapConnection(new LdapDirectoryIdentifier(_serverHostname, _serverPort), new NetworkCredential("cn=admin,dc=dd-trace-dotnet,dc=com", "Passw0rd"), AuthType.Basic);
+                ldapConnection.SessionOptions.ProtocolVersion = 3;
+                ldapConnection.Bind();
             }
             catch (Exception e)
             {
-                Console.WriteLine("[Error] An error occured while trying to connect to the LDAP server: " + e.Message);
+                Console.WriteLine($"[Error] An error occured while trying to connect to the LDAP server `{_serverHostname}:{_serverPort}`. Message: " + e.Message);
             }
         }
     }

@@ -332,6 +332,7 @@ services:
     ports:
       - "389:369"
       - "636:636"
+    hostname: openldap-server
     environment:
       LDAP_ORGANISATION: "Datadog"
       LDAP_DOMAIN: "dd-trace-dotnet.com"
@@ -428,6 +429,7 @@ services:
       - DD_LOGGER_DD_TAGS
       - DD_INTERNAL_TELEMETRY_V2_ENABLED
       - DD_TELEMETRY_METRICS_ENABLED
+      - LDAP_SERVER=openldap-server:389
     hostname: integrationtests
     depends_on:
       - openldap
