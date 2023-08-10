@@ -38,7 +38,7 @@ namespace Datadog.Trace.Tests.Util.Http
         public void EdgeCases(string querystring)
         {
             var logger = new Mock<IDatadogLogger>();
-            var queryStringObfuscator = ObfuscatorFactory.GetObfuscator(Timeout, TracerSettings.DefaultObfuscationQueryStringRegex, logger.Object);
+            var queryStringObfuscator = ObfuscatorFactory.GetObfuscator(Timeout, TracerSettingsConstants.DefaultObfuscationQueryStringRegex, logger.Object);
             var result = queryStringObfuscator.Obfuscate(querystring);
             result.Should().Be(querystring);
         }
@@ -47,10 +47,10 @@ namespace Datadog.Trace.Tests.Util.Http
         public void ObfuscateWithDefaultPattern()
         {
             var logger = new Mock<IDatadogLogger>();
-            var queryStringObfuscator = ObfuscatorFactory.GetObfuscator(Timeout, TracerSettings.DefaultObfuscationQueryStringRegex, logger.Object);
-            var queryString = "key1=val1&token=a0b21ce2-006f-4cc6-95d5-d7b550698482&key2=val2";
+            var queryStringObfuscator = ObfuscatorFactory.GetObfuscator(Timeout, TracerSettingsConstants.DefaultObfuscationQueryStringRegex, logger.Object);
+            var queryString = "key1=val1&token=a0b21ce2-006f-4cc6-95d5-d7b550698482&key2=val2&api_key=erjeiowjr374382";
             var result = queryStringObfuscator.Obfuscate(queryString);
-            result.Should().Be("key1=val1&<redacted>&key2=val2");
+            result.Should().Be("key1=val1&<redacted>&key2=val2&<redacted>");
         }
 
         [Fact]
