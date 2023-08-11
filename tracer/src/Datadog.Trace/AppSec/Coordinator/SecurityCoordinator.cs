@@ -7,11 +7,15 @@
 #pragma warning disable CS0282
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Text;
 using Datadog.Trace.AppSec.Waf;
 using Datadog.Trace.AppSec.Waf.ReturnTypes.Managed;
 using Datadog.Trace.Logging;
 using Datadog.Trace.Telemetry;
 using Datadog.Trace.Telemetry.Metrics;
+using Datadog.Trace.Vendors.MessagePack;
 using Datadog.Trace.Vendors.Newtonsoft.Json;
 using Datadog.Trace.Vendors.Serilog.Events;
 
@@ -151,7 +155,12 @@ internal readonly partial struct SecurityCoordinator
             if (exists)
             {
                 var serializeObject = JsonConvert.SerializeObject(derivative.Value);
-                _localRootSpan.SetTag(key, serializeObject);
+                using var memStr = new MemoryStream();
+                MessagePackBinary.WriteString(memStr, serializeObject);
+                var bytes = memStr.GetBuffer();
+                var str = MessagePackBinary.ReadString(bytes, 0, out var readSize);
+                var serializedBase64 = Convert.ToBase64String(bytes);
+                _localRootSpan.SetTag(key, serializedBase64);
             }
             else
             {
