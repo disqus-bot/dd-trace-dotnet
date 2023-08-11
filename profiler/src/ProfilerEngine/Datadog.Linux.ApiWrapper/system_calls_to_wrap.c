@@ -56,14 +56,14 @@
                                                                                \
     return_type name(END(PARAMS_LOOP_0 parameters))                            \
     {                                                                          \
-        if (__real_##name == NULL)                                             \
-        {                                                                      \
-            __real_##name = dlsym(RTLD_NEXT, #name);                           \
-        }                                                                      \
-                                                                               \
         PROTECT_CALL(return_type, __real_##name(END(VAR_LOOP_0 parameters)))   \
                                                                                \
         return rc;                                                             \
+    }                                                                          \
+    static void load_symbols_##name() __attribute__((constructor));            \
+    void load_symbols_##name()                                                 \
+    {                                                                          \
+        __real_##name = dlsym(RTLD_NEXT, #name);                               \
     }
 
 #ifdef __GLIBC__
