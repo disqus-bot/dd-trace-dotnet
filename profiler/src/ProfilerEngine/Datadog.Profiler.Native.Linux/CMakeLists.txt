@@ -15,7 +15,7 @@ message(STATUS "Run Clang Undefined-Behavior Sanitizer: " ${RUN_UBSAN})
 # ******************************************************
 
 # Sets compiler options
-add_compile_options(-std=c++17 -fPIC -fms-extensions -gdwarf-4)
+add_compile_options(-std=c++17 -fPIC -fms-extensions)
 add_compile_options(-DPAL_STDCPP_COMPAT -DPLATFORM_UNIX -DUNICODE)
 add_compile_options(-Wno-invalid-noreturn -Wno-macro-redefined)
 
@@ -24,11 +24,11 @@ if (IS_ALPINE)
 endif()
 
 if (RUN_ASAN)
-    add_compile_options(-g -fsanitize=address -fno-omit-frame-pointer -DDD_SANITIZERS)
+    add_compile_options(-g -fsanitize=address -fno-omit-frame-pointer -DDD_SANITIZERS -gdwarf-4)
 endif()
 
 if (RUN_UBSAN)
-    add_compile_options(-fsanitize=undefined -g -fno-omit-frame-pointer -fno-sanitize-recover=all -DDD_SANITIZERS)
+    add_compile_options(-fsanitize=undefined -g -fno-omit-frame-pointer -fno-sanitize-recover=all -DDD_SANITIZERS -gdwarf-4)
 endif()
 
 if(ISLINUX)

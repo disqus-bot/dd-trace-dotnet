@@ -12,7 +12,7 @@
 thread_local ManagedThreadInfo* managedThreadInfo = nullptr;
 SystemCallsShield* SystemCallsShield::Instance = nullptr;
 
-extern "C" int (*volatile __dd_acquire_release_barrier)(int*) __attribute__((weak));
+extern "C" int (*volatile __dd_set_shared_memory)(int*) __attribute__((weak));
 // check if this symbol is present to know if the wrapper is loaded
 extern "C" unsigned long long dd_inside_wrapped_functions() __attribute__((weak));
 
@@ -34,7 +34,7 @@ bool SystemCallsShield::Start()
     if (_isEnabled)
     {
         Instance = this;
-        __dd_acquire_release_barrier = SystemCallsShield::HandleSystemCalls;
+        __dd_set_shared_memory = SystemCallsShield::SetSharedMemory;
     }
 
     return true;
@@ -44,7 +44,7 @@ bool SystemCallsShield::Stop()
 {
     if (_isEnabled)
     {
-        __dd_acquire_release_barrier = nullptr;
+        __dd_set_shared_memory = nullptr;
         Instance = nullptr;
     }
 
@@ -72,16 +72,16 @@ void SystemCallsShield::Unregister()
     }
 }
 
-int SystemCallsShield::HandleSystemCalls(int* state)
+int SystemCallsShield::SetSharedMemory(int* state)
 {
     if (Instance == nullptr)
     {
         return 0;
     }
-    return Instance->LinkWrapperToProfiler(state);
+    return Instance->SetSharedMemoryOnThreadInfo(state);
 }
 
-int SystemCallsShield::LinkWrapperToProfiler(int* state)
+int SystemCallsShield::SetSharedMemoryOnThreadInfo(int* state)
 {
     auto threadInfo = managedThreadInfo;
     if (threadInfo == nullptr)

@@ -26,10 +26,10 @@ public:
 
 private:
     static SystemCallsShield* Instance;
-    static int HandleSystemCalls(int* state);
+    static int SetSharedMemory(int* state);
     static bool ShouldEnable(IConfiguration* configuration);
 
-    int LinkWrapperToProfiler(int* state);
+    int SetSharedMemoryOnThreadInfo(int* state);
 
     bool _isEnabled;
 };
