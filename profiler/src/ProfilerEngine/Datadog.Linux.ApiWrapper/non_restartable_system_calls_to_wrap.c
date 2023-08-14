@@ -42,6 +42,10 @@
                                                                                                              \
     return_type name(END(PARAMS_LOOP_0 parameters))                                                          \
     {                                                                                                        \
+        if (__real_##name == NULL)                                                                           \
+        {                                                                                                    \
+            __real_##name = dlsym(RTLD_NEXT, #name);                                                         \
+        }                                                                                                    \
         int succeeded = 0;                                                                                   \
         int interrupted_by_profiler = 0;                                                                     \
         if (__dd_set_shared_memory != NULL)                                                                  \
