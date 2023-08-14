@@ -32,7 +32,7 @@ public abstract class EFBaseTests : InstrumentationTestsBase, IDisposable
 
     public void Dispose()
     {
-        db.Database.Connection.Close();
+        //db.Database.Connection.Close();
         db.Dispose();
         db = null;
     }

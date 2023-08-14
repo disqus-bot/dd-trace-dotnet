@@ -2,10 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Data.Entity;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using static Dapper.SqlMapper;
 
 namespace Samples.InstrumentedTests.Iast.Vulnerabilities.SqlInjection;
 
@@ -269,6 +273,149 @@ public abstract class EFCoreBaseTests: InstrumentationTestsBase, IDisposable
     {
         (from c in dbContext.Books where c.Title == taintedTitle select c).ToList();
         AssertNotVulnerable();
+    }
+    /*
+    [Fact]
+    public void tesstY()
+    {
+        var t = string.Concat("p.Title", taintedTitle, "p.Id", "p.Author");
+
+        AssertUntaintedWithOriginalCallCheck(
+            () => dbContext.Books.Where(p => string.Concat(p.Title, taintedTitle, p.Id, p.Author) == "Example").ToList(),
+            () => dbContext.Books.Where(p => string.Concat(p.Title, taintedTitle, p.Id, p.Author) == "Example").ToList());
+        
+        var query = dbContext.Books.Where(p => string.Concat(p.Title, taintedTitle, p.Id, p.Author) == "Example").ToList();
+    }*/
+
+    [Fact]
+    public void tesstY2()
+    {
+        var t = string.Format("%s-%s", taintedTitle, "rr");
+
+        AssertUntaintedWithOriginalCallCheck(
+            () => dbContext.Books.Where(p => string.Format("%s-%s", taintedTitle, "rr") == "Example").ToList(),
+            () => dbContext.Books.Where(p => string.Format("%s-%s", taintedTitle, "rr") == "Example").ToList());
+
+        var query = dbContext.Books.Where(p => string.Format("%s-%s", taintedTitle, "rr") == "Example").ToList();
+    }
+
+    [Fact]
+    public void tesstY3()
+    {
+        var t = string.Concat("p.Title", taintedTitle, "p.Id", "p.Author");
+
+        AssertUntaintedWithOriginalCallCheck(
+            () => dbContext.Books.Where(p => string.Concat("p.Title", "taintedTitle", "p.Id", "p.Author") == "Example").ToList(),
+            () => dbContext.Books.Where(p => string.Concat("p.Title", "taintedTitle", "p.Id", "p.Author") == "Example").ToList());
+
+        var query = dbContext.Books.Where(p => string.Concat("p.Title", "taintedTitle", "p.Id", "p.Author") == "Example").ToList();
+    }
+
+    [Fact]
+    public void tesstY4()
+    {
+        var t = string.Concat(taintedTitle, "p.Title");
+
+        AssertUntaintedWithOriginalCallCheck(
+            () => dbContext.Books.Where(p => string.Concat(taintedTitle, "p.Title") == "Example").ToList(),
+            () => dbContext.Books.Where(p => string.Concat(taintedTitle, "p.Title") == "Example").ToList());
+
+        var query = dbContext.Books.Where(p => string.Concat(taintedTitle, "p.Title") == "Example").ToList();
+    }
+
+    [Fact]
+    public void tesstY433()
+    {
+        var t = string.Concat(taintedTitle, "p.Title");
+
+        AssertUntaintedWithOriginalCallCheck(
+            () => dbContext.Books.Where(p => aux(taintedTitle, "p.Title") == "Example").ToList(),
+            () => dbContext.Books.Where(p => aux(taintedTitle, "p.Title") == "Example").ToList());
+
+        var query = dbContext.Books.Where(p => aux(taintedTitle, "p.Title") == "Example").ToList();
+    }
+
+    private string aux(string s1, string s2)
+    {
+        return string.Concat(s1, s2);
+    }
+    
+    [Fact]
+    public void tesstY433rrr()
+    {
+        var res = dbContext.Books.Select(x => x.Author != "ee");
+        AssertUntaintedWithOriginalCallCheck(
+            () => res.Where(x => string.Format(taintedTitle, "ee") != "ww"),
+            () => res.Where(x => string.Format(taintedTitle, "ee") != "ww"));
+
+        var t = res.Where(x => string.Format(taintedTitle, "ee") != "ww");
+    }
+
+    [Fact]
+    public void tesstY4333333()
+    {
+        var t = (from c in dbContext.Books where c.Title == string.Concat(taintedTitle, "eee") select c).ToList();
+    }
+
+
+    [Fact]
+    public void tesstY43333343()
+    {
+        var t = (from c in dbContext.Books where c.Title == string.Concat(taintedTitle, "eee") select c).ToList();
+    }
+
+    [Fact]
+    public void tesstY43333343333()
+    {
+        AssertUntaintedWithOriginalCallCheck(
+            () => GetEstates().ToList().First(),
+            () => GetEstates().ToList().First());
+        
+        var st = GetEstates().First();
+    }
+
+    public IQueryable<Book> GetEstates()
+    {
+        var allHomeFeat = GetHomeFeatures().ToList();
+        var firstHomeFeat = allHomeFeat.FirstOrDefault(); // Assign to a local variable
+
+        return from e in dbContext.Books
+               select new Book
+               {
+                   Title = e.Title,
+                   Author = firstHomeFeat.Author
+               };
+    }
+
+    public IQueryable<Book> GetHomeFeatures()
+    {
+        return from f in dbContext.Books
+               select new Book()
+               {
+                   Title = string.Format("{0}", f.Title),
+               };
+    }
+
+
+    [Fact]
+    public void tesstY433ds343()
+    {
+        var patients = GetHomeFeatures().Select(p => new Book()
+        {
+            Author = string.Format("{0}", p.Author),
+            Id = sample(taintedTitle).ToString()
+        });
+    }
+
+    private string sample(string v)
+    {
+        return v + "eee" + v;
+    }
+
+
+    private int ToInt32(int v)
+    {
+        return 77;
     }
 }
 #endif
