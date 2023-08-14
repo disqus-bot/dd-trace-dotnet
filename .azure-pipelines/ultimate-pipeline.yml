@@ -93,7 +93,7 @@ schedules:
 
 # Global variables
 variables:
-  buildConfiguration: Release
+  buildConfiguration: Debug
   dotnetCoreSdkLatestVersion: 7.0.306
   relativeArtifacts: /tracer/src/bin/artifacts
   monitoringHome: $(System.DefaultWorkingDirectory)/shared/bin/monitoring-home
