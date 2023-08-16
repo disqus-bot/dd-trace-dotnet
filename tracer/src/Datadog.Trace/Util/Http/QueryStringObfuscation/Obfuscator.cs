@@ -44,6 +44,9 @@ namespace Datadog.Trace.Util.Http.QueryStringObfuscation
             _regex = new(pattern, options, _timeout);
         }
 
+        /// <summary>
+        /// Warning: Default value crashes the native .net regex engine under netcoreapp2.1 and linux and arm64, don't use default value on manual instrum.
+        /// </summary>
         internal override string Obfuscate(string queryString)
         {
             if (string.IsNullOrEmpty(queryString))

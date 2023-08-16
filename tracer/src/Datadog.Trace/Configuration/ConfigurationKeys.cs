@@ -373,6 +373,7 @@ namespace Datadog.Trace.Configuration
         /// <summary>
         /// Configuration key for specifying a custom regex to obfuscate query strings.
         /// Default value is in TracerSettingsConstants
+        /// Warning: Default value crashes the .net regex engine under netcoreapp2.1 and linux and arm64, dont use on manual instrum.
         /// </summary>
         /// <seealso cref="TracerSettings.ObfuscationQueryStringRegex"/>
         public const string ObfuscationQueryStringRegex = "DD_TRACE_OBFUSCATION_QUERY_STRING_REGEXP";

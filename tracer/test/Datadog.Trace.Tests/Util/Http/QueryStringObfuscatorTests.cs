@@ -7,6 +7,7 @@ using System;
 using System.Text.RegularExpressions;
 using Datadog.Trace.Configuration;
 using Datadog.Trace.Logging;
+using Datadog.Trace.TestHelpers;
 using Datadog.Trace.Util.Http.QueryStringObfuscation;
 using FluentAssertions;
 using Moq;
@@ -46,6 +47,10 @@ namespace Datadog.Trace.Tests.Util.Http
         [Fact]
         public void ObfuscateWithDefaultPattern()
         {
+            // the default regex seems to crash the regex engine on netcoreapp2.1, with a null reference exception on the dotnet RegexRunner
+#if NETCOREAPP2_1
+            SkipOn.PlatformAndArchitecture(SkipOn.PlatformValue.Linux, SkipOn.ArchitectureValue.ARM64);
+#endif
             var logger = new Mock<IDatadogLogger>();
             var queryStringObfuscator = ObfuscatorFactory.GetObfuscator(Timeout, TracerSettingsConstants.DefaultObfuscationQueryStringRegex, logger.Object);
             var queryString = "key1=val1&token=a0b21ce2-006f-4cc6-95d5-d7b550698482&key2=val2&api_key=erjeiowjr374382";
