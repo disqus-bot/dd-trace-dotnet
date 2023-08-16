@@ -100,7 +100,6 @@ namespace Datadog.Trace.Security.Unit.Tests
 
         private void Execute(string address, object value, string flow, string rule)
         {
-            GlobalSettings.SetDebugEnabledInternal(true);
             var args = new Dictionary<string, object> { { address, value } };
             if (!args.ContainsKey(AddressesConstants.RequestUriRaw))
             {

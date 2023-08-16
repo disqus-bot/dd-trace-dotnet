@@ -65,9 +65,9 @@ namespace Datadog.Trace.AppSec
             try
             {
                 _settings = settings ?? SecuritySettings.FromDefaultSources();
+                _waf = waf;
                 _noLocalRules = _settings.Rules == null;
                 _configurationStatus = new ConfigurationStatus(_settings.Rules);
-                _waf = waf;
                 LifetimeManager.Instance.AddShutdownTask(RunShutdown);
 
                 if (_settings.Enabled && _waf == null)
@@ -99,6 +99,10 @@ namespace Datadog.Trace.AppSec
                 _settings ??= new(source: null, TelemetryFactory.Config);
                 _configurationStatus ??= new ConfigurationStatus(string.Empty);
                 Log.Error(ex, "DDAS-0001-01: AppSec could not start because of an unexpected error. No security activities will be collected. Please contact support at https://docs.datadoghq.com/help/ for help.");
+            }
+            finally
+            {
+                ApiSecurity = new(_settings!);
             }
         }
 
@@ -141,6 +145,8 @@ namespace Datadog.Trace.AppSec
         internal bool TrackUserEvents => Enabled && Settings.UserEventsAutomatedTracking != "disabled";
 
         internal bool IsExtendedUserTrackingEnabled => Settings.UserEventsAutomatedTracking == SecuritySettings.UserTrackingExtendedMode;
+
+        internal ApiSecurity ApiSecurity { get; }
 
         internal void SubscribeToChanges(params string[] productNames)
         {

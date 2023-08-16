@@ -214,8 +214,13 @@ internal readonly partial struct SecurityCoordinator
     /// <summary>
     /// Framework can do it all at once, but framework only unfortunately
     /// </summary>
-    internal void CheckAndBlock(Dictionary<string, object> args)
+    internal void CheckAndBlock(Dictionary<string, object> args, bool timeToTryReportSchema = false)
     {
+        if (timeToTryReportSchema)
+        {
+            _security.ApiSecurity.TryTellWafToAnalyzeSchema(args);
+        }
+
         var result = RunWaf(args);
         if (result?.ShouldBeReported is true)
         {
@@ -226,9 +231,12 @@ internal readonly partial struct SecurityCoordinator
                 ChooseBlockingMethodAndBlock(result.Actions[0], reporting);
             }
 
-            // here we assume if the we haven't blocked we'll have collected the correct status elsewhere
+            // here we assume if we haven't blocked we'll have collected the correct status elsewhere
             reporting(null, result.ShouldBlock);
         }
+
+        // todo: this is not correct if exception is thrown here
+        _security.ApiSecurity.ReportSchema(result, _localRootSpan);
     }
 
     private Action<int?, bool> MakeReportingFunction(string triggerData, ulong aggregatedTotalRuntime, ulong aggregatedTotalRuntimeWithBindings)

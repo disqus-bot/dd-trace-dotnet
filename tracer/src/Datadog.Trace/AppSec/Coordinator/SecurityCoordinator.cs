@@ -136,36 +136,4 @@ internal readonly partial struct SecurityCoordinator
     }
 
     private static Span TryGetRoot(Span span) => span.Context.TraceContext?.RootSpan ?? span;
-
-    private void ReportSchema(Dictionary<string, object> resultDerivatives)
-    {
-        const string prefix = "_dd.appsec.s.";
-        var dic = new Dictionary<string, string>
-        {
-            { AddressesConstants.RequestBody + ".schema", prefix + "req.body" },
-            { AddressesConstants.RequestHeaderNoCookies + ".schema", prefix + "req.headers" },
-            { AddressesConstants.RequestQuery + ".schema", prefix + "req.query" },
-            { AddressesConstants.RequestPathParams + ".schema", prefix + "req.params" },
-            { AddressesConstants.ResponseBody + ".schema", prefix + "res.body" },
-            { AddressesConstants.ResponseHeaderNoCookies + ".schema", prefix + "res.headers" }
-        };
-        foreach (var derivative in resultDerivatives)
-        {
-            var exists = dic.TryGetValue(derivative.Key, out var key);
-            if (exists)
-            {
-                var serializeObject = JsonConvert.SerializeObject(derivative.Value);
-                using var memStr = new MemoryStream();
-                MessagePackBinary.WriteString(memStr, serializeObject);
-                var bytes = memStr.GetBuffer();
-                var str = MessagePackBinary.ReadString(bytes, 0, out var readSize);
-                var serializedBase64 = Convert.ToBase64String(bytes);
-                _localRootSpan.SetTag(key, serializedBase64);
-            }
-            else
-            {
-                Log.Warning("Derivative key unknown {Key}", derivative.Key);
-            }
-        }
-    }
 }
