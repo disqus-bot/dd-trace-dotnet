@@ -115,7 +115,7 @@ internal readonly partial struct SecurityCoordinator
         {
             TelemetryFactory.Metrics.RecordCountWafRequests(MetricTags.WafAnalysis.RuleTriggeredAndBlocked);
         }
-        else if (result.ShouldBeReported)
+        else if (result.ShouldReportSecurityResult)
         {
             TelemetryFactory.Metrics.RecordCountWafRequests(MetricTags.WafAnalysis.RuleTriggered);
         }

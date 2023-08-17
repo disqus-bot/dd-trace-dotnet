@@ -59,17 +59,15 @@ internal readonly partial struct SecurityCoordinator
 
     internal void CheckAndBlock(IResult? result)
     {
-        if (result?.ShouldBeReported is true)
+        if (result?.ShouldReportSecurityResult is true)
         {
             if (result.ShouldBlock)
             {
                 throw new BlockException(result);
             }
 
-            Report(result.Data, result.AggregatedTotalRuntime, result.AggregatedTotalRuntimeWithBindings, result.ShouldBlock);
+            TryReport(result, result.ShouldBlock);
         }
-
-        _security.ApiSecurity.ReportSchema(result, _localRootSpan);
     }
 
     private Dictionary<string, object> GetBasicRequestArgsForWaf()

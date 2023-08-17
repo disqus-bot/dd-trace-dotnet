@@ -17,21 +17,24 @@ namespace Datadog.Trace.AppSec.Waf
         {
             this.returnCode = returnCode;
             Actions = returnStruct.Actions.DecodeStringArray();
-            ShouldBeReported = returnCode >= DDWAF_RET_CODE.DDWAF_MATCH;
+            ShouldReportSecurityResult = returnCode >= DDWAF_RET_CODE.DDWAF_MATCH;
+            Derivatives = returnStruct.Derivatives.DecodeMap();
+            ShouldReportSchema = Derivatives is { Count: > 0 };
             var events = returnStruct.Events.DecodeObjectArray();
-            if (events.Count == 0 || !ShouldBeReported) { Data = string.Empty; }
+            if (events.Count == 0 || !ShouldReportSecurityResult) { Data = string.Empty; }
             else
             {
                 // Serialize all the events
                 Data = JsonConvert.SerializeObject(events);
             }
 
-            Derivatives = returnStruct.Derivatives.DecodeMap();
             ShouldBlock = Actions.Contains("block");
             AggregatedTotalRuntime = aggregatedTotalRuntime;
             AggregatedTotalRuntimeWithBindings = aggregatedTotalRuntimeWithBindings;
             Timeout = returnStruct.Timeout;
         }
+
+        public bool ShouldReportSchema { get; }
 
         public Dictionary<string, object> Derivatives { get; }
 
@@ -55,7 +58,7 @@ namespace Datadog.Trace.AppSec.Waf
 
         public bool ShouldBlock { get; }
 
-        public bool ShouldBeReported { get; }
+        public bool ShouldReportSecurityResult { get; }
 
         public bool Timeout { get; }
     }

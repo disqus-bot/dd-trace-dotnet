@@ -88,7 +88,7 @@ internal class BlockingMiddleware
                 }
 
                 var result = securityCoordinator.Scan();
-                if (result?.ShouldBeReported is true)
+                if (result is not null)
                 {
                     if (result.ShouldBlock)
                     {
@@ -97,7 +97,7 @@ internal class BlockingMiddleware
                         securityCoordinator.MarkBlocked();
                     }
 
-                    securityCoordinator.Report(result.Data, result.AggregatedTotalRuntime, result.AggregatedTotalRuntimeWithBindings, endedResponse);
+                    securityCoordinator.TryReport(result, endedResponse);
                     // security will be disposed in endrequest of diagnostic observer in any case
                 }
             }
@@ -125,7 +125,7 @@ internal class BlockingMiddleware
                         var securityCoordinator = new SecurityCoordinator(security, context, span);
                         if (!blockException.Reported)
                         {
-                            securityCoordinator.Report(blockException.Result.Data, blockException.Result.AggregatedTotalRuntime, blockException.Result.AggregatedTotalRuntimeWithBindings, endedResponse);
+                            securityCoordinator.TryReport(blockException.Result, endedResponse);
                         }
 
                         securityCoordinator.AddResponseHeadersToSpanAndCleanup();

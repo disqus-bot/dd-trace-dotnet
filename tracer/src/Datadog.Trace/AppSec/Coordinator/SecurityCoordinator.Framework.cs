@@ -222,9 +222,9 @@ internal readonly partial struct SecurityCoordinator
         }
 
         var result = RunWaf(args);
-        if (result?.ShouldBeReported is true)
+        if (result is not null)
         {
-            var reporting = MakeReportingFunction(result.Data, result.AggregatedTotalRuntime, result.AggregatedTotalRuntimeWithBindings);
+            var reporting = MakeReportingFunction(result);
 
             if (result.ShouldBlock)
             {
@@ -234,22 +234,19 @@ internal readonly partial struct SecurityCoordinator
             // here we assume if we haven't blocked we'll have collected the correct status elsewhere
             reporting(null, result.ShouldBlock);
         }
-
-        // todo: this is not correct if exception is thrown here
-        _security.ApiSecurity.ReportSchema(result, _localRootSpan);
     }
 
-    private Action<int?, bool> MakeReportingFunction(string triggerData, ulong aggregatedTotalRuntime, ulong aggregatedTotalRuntimeWithBindings)
+    private Action<int?, bool> MakeReportingFunction(IResult result)
     {
         var securityCoordinator = this;
         return (status, blocked) =>
         {
-            if (blocked)
+            if (result.ShouldBlock)
             {
                 securityCoordinator._httpTransport.MarkBlocked();
             }
 
-            securityCoordinator.Report(triggerData, aggregatedTotalRuntime, aggregatedTotalRuntimeWithBindings, blocked, status);
+            securityCoordinator.TryReport(result, blocked, status);
         };
     }
 
