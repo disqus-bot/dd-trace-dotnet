@@ -8,10 +8,12 @@ namespace Samples.RuntimeMetrics
     internal static class Program
     {
         private static readonly object SyncRoot = new object();
+        private static readonly Stopwatch Stopwatch = new();
 
         private static void Main()
         {
             Console.WriteLine($"Started - PID {Process.GetCurrentProcess().Id}");
+            Stopwatch.Start();
 
             // Force the tracer to be loaded
             _ = WebRequest.CreateHttp("http://localhost/");
@@ -32,7 +34,8 @@ namespace Samples.RuntimeMetrics
 
             Thread.Sleep(30000);
 
-            Console.WriteLine("Exiting");
+            Console.WriteLine($"{Stopwatch.ElapsedMilliseconds, 6}Exiting");
+            Stopwatch.Stop();
         }
 
         private static void GenerateEvents()
@@ -41,6 +44,7 @@ namespace Samples.RuntimeMetrics
             {
                 try
                 {
+                    Console.WriteLine($"{Stopwatch.ElapsedMilliseconds, 6}ms Generating exception...");
                     throw new InvalidOperationException("This is expected");
                 }
                 catch
@@ -56,6 +60,7 @@ namespace Samples.RuntimeMetrics
         {
             while (true)
             {
+                Console.WriteLine($"{Stopwatch.ElapsedMilliseconds, 6}ms Allocating...");
                 // Do some big allocating etc to ensure committed memory increases
                 // over time
                 var bigBuffer = new byte[100_000_000];
