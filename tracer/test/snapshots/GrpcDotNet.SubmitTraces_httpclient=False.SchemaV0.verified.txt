@@ -658,8 +658,7 @@ at Samples.GrpcDotNet.Services.GreeterService.ErroringMethod(CreateErrorRequest 
     Tags: {
       env: integration_tests,
       language: dotnet,
-      runtime-id: Guid_1,
-      _dd.p.dm: -0
+      runtime-id: Guid_1
     },
     Metrics: {
       process_id: 0,
@@ -694,7 +693,8 @@ at Samples.GrpcDotNet.Services.GreeterService.ErroringMethod(CreateErrorRequest 
       out.host: 127.0.0.1,
       runtime-id: Guid_1,
       servermeta: other-server-value,
-      span.kind: client
+      span.kind: client,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0
@@ -1308,8 +1308,7 @@ at Samples.GrpcDotNet.Services.GreeterService.ErroringMethod(CreateErrorRequest 
     Tags: {
       env: integration_tests,
       language: dotnet,
-      runtime-id: Guid_1,
-      _dd.p.dm: -0
+      runtime-id: Guid_1
     },
     Metrics: {
       process_id: 0,
@@ -1342,7 +1341,8 @@ at Samples.GrpcDotNet.Services.GreeterService.ErroringMethod(CreateErrorRequest 
       out.host: 127.0.0.1,
       runtime-id: Guid_1,
       servermeta: other-server-value,
-      span.kind: client
+      span.kind: client,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0
@@ -1413,7 +1413,8 @@ at Samples.GrpcDotNet.Services.GreeterService.ErroringMethod(CreateErrorRequest 
     Tags: {
       env: integration_tests,
       language: dotnet,
-      runtime-id: Guid_1
+      runtime-id: Guid_1,
+      _dd.p.dm: -0
     },
     Metrics: {
       process_id: 0,
@@ -1446,8 +1447,7 @@ at Samples.GrpcDotNet.Services.GreeterService.ErroringMethod(CreateErrorRequest 
       grpc.status.code: 4,
       out.host: 127.0.0.1,
       runtime-id: Guid_1,
-      span.kind: client,
-      _dd.p.dm: -0
+      span.kind: client
     },
     Metrics: {
       _dd.top_level: 1.0
