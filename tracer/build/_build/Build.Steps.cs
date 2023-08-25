@@ -369,7 +369,7 @@ partial class Build
 
             var toBuild = include.Except(exclude);
 
-            DotnetBuild(toBuild, noDependencies: false);
+            DotnetBuild(toBuild, framework: Framework, noDependencies: false);
         });
 
 
@@ -551,9 +551,18 @@ partial class Build
         .After(CompileManagedSrc)
         .Executes(() =>
         {
-            var targetFrameworks = IsWin
-                ? TargetFrameworks
-                : TargetFrameworks.Where(framework => !framework.ToString().StartsWith("net4"));
+            IEnumerable<TargetFramework> targetFrameworks;
+
+            if (Framework == null)
+            {
+                targetFrameworks = IsWin ?
+                                       TargetFrameworks :
+                                       TargetFrameworks.Where(framework => !framework.ToString().StartsWith("net4"));
+            }
+            else
+            {
+                targetFrameworks = new[] { Framework };
+            }
 
             // Publish Datadog.Trace.MSBuild which includes Datadog.Trace and Datadog.Trace.AspNet
             DotNetPublish(s => s
@@ -565,6 +574,35 @@ partial class Build
                 .CombineWith(targetFrameworks, (p, framework) => p
                     .SetFramework(framework)
                     .SetOutput(MonitoringHomeDirectory / framework)));
+        });
+
+    Target PublishManagedTracerForAwsLambda => _ => _
+        .Unlisted()
+        .After(CompileManagedSrc)
+        .Executes(() =>
+        {
+            var targetFramework = TargetFramework.NET6_0;
+
+            IEnumerable<DotNetRuntimeIdentifier> runtimeIdentifiers = new[]
+            {
+                DotNetRuntimeIdentifier.linux_x64,
+                DotNetRuntimeIdentifier.linux_arm64
+            };
+
+            var outputPath = (AbsolutePath)(MonitoringHomeDirectory + "-r2r");
+
+            // we only need Datadog.Trace.dll for AWS Lambda
+            DotNetPublish(s => s
+                .SetProject(Solution.GetProject(Projects.DatadogTrace))
+                .SetConfiguration(BuildConfiguration)
+                .SetTargetPlatformAnyCPU()
+                .SetPublishReadyToRun(true)    // enable ReadyToRun
+                .SetFramework(targetFramework) // required for ReadyToRun
+                .EnableNoBuild()
+                .EnableNoRestore()
+                .CombineWith(runtimeIdentifiers, (p, runtime) => p
+                    .SetRuntime(runtime)
+                    .SetOutput(outputPath / targetFramework / runtime)));
         });
 
     Target PublishNativeSymbolsWindows => _ => _
@@ -2557,9 +2595,11 @@ partial class Build
         DotNetBuild(s => s
             .SetConfiguration(BuildConfiguration)
             .SetTargetPlatformAnyCPU()
+            .SetPublishReadyToRun(PublishReadyToRun)
             .When(noRestore, settings => settings.EnableNoRestore())
             .When(noDependencies, settings => settings.EnableNoDependencies())
             .When(framework is not null, settings => settings.SetFramework(framework))
+            .When(RuntimeIdentifier is not null, settings => settings.SetRuntime(RuntimeIdentifier))
             .When(DebugType is not null, settings => settings.SetProperty(nameof(DebugType), DebugType))
             .When(Optimize is not null, settings => settings.SetProperty(nameof(Optimize), Optimize))
             .When(!string.IsNullOrEmpty(NugetPackageDirectory), o => o.SetPackageDirectory(NugetPackageDirectory))

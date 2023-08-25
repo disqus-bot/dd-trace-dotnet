@@ -28,7 +28,7 @@ partial class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    [Parameter("Configuration to build - Default is 'Release'")]
+    [Parameter("Configuration to build. Default is 'Release'")]
     readonly Configuration BuildConfiguration = Configuration.Release;
 
     [Parameter("Platform to build - x86, x64, ARM64. Defaults to the current platform.")]
@@ -36,6 +36,12 @@ partial class Build : NukeBuild
 
     [Parameter("The TargetFramework to execute when running or building a sample app, or linux integration tests")]
     readonly TargetFramework Framework;
+
+    [Parameter("Publish ReadyToRun assemblies. Default is 'false'. If 'true', requires RuntimeIdentifier to be set. See https://learn.microsoft.com/en-us/dotnet/core/deploying/ready-to-run")]
+    readonly bool PublishReadyToRun = false;
+
+    [Parameter("Identifies target platform. Required if PublishReadyToRun is 'true'. See https://learn.microsoft.com/en-us/dotnet/core/rid-catalog")]
+    readonly string RuntimeIdentifier;
 
     [Parameter("Should all versions of integration NuGet packages be tested")]
     readonly bool TestAllPackageVersions;
@@ -45,6 +51,7 @@ partial class Build : NukeBuild
 
     [Parameter("The location to create the monitoring home directory. Default is ./shared/bin/monitoring-home ")]
     readonly AbsolutePath MonitoringHome;
+
     [Parameter("The location to place NuGet packages and other packages. Default is ./bin/artifacts ")]
     readonly AbsolutePath Artifacts;
 
@@ -57,13 +64,13 @@ partial class Build : NukeBuild
     [Parameter("The current version of the source and build")]
     readonly string Version = "2.38.0";
 
-    [Parameter("Whether the current build version is a prerelease(for packaging purposes)")]
+    [Parameter("Whether the current build version is a prerelease (for packaging purposes)")]
     readonly bool IsPrerelease = false;
 
     [Parameter("The new build version to set")]
     readonly string NewVersion;
 
-    [Parameter("Whether the new build version is a prerelease(for packaging purposes)")]
+    [Parameter("Whether the new build version is a prerelease (for packaging purposes)")]
     readonly bool? NewIsPrerelease;
 
     [Parameter("Prints the available drive space before executing each target. Defaults to false")]
@@ -159,6 +166,20 @@ partial class Build : NukeBuild
         .DependsOn(CopyLibDdwaf)
         .DependsOn(BuildNativeLoader)
         .DependsOn(CreateRootDescriptorsFile);
+
+    Target BuildTracerHomeForAwsLambda => _ => _
+        .Description("Builds the native and managed src, and publishes the tracer home directory for AWS Lambda")
+        .After(Clean)
+        .DependsOn(CreateRequiredDirectories)
+        .DependsOn(Restore)
+        .DependsOn(CompileManagedSrc)
+        .DependsOn(PublishManagedTracerForAwsLambda)
+        //.DependsOn(CompileNativeSrc)
+        //.DependsOn(PublishNativeTracer)
+        //.DependsOn(DownloadLibDdwaf)
+        //.DependsOn(CopyLibDdwaf)
+        .DependsOn(BuildNativeLoader);
+        //.DependsOn(CreateRootDescriptorsFile);
 
     Target BuildProfilerHome => _ => _
         .Description("Builds the Profiler native and managed src, and publishes the profiler home directory")
@@ -360,13 +381,13 @@ partial class Build : NukeBuild
         .After(CreateBundleHome, ExtractDebugInfoLinux, PackRunnerToolNuget)
         .Executes(() =>
         {
-            var runtimes = new[] 
-            { 
-                (rid: "win-x86", archiveFormat: ".zip"),  
-                (rid: "win-x64", archiveFormat: ".zip"),  
-                (rid: "linux-x64", archiveFormat: ".tar.gz"),  
-                (rid: "linux-musl-x64", archiveFormat: ".tar.gz"),  
-                (rid: "osx-x64", archiveFormat: ".tar.gz"),  
+            var runtimes = new[]
+            {
+                (rid: "win-x86", archiveFormat: ".zip"),
+                (rid: "win-x64", archiveFormat: ".zip"),
+                (rid: "linux-x64", archiveFormat: ".tar.gz"),
+                (rid: "linux-musl-x64", archiveFormat: ".tar.gz"),
+                (rid: "osx-x64", archiveFormat: ".tar.gz"),
                 (rid: "linux-arm64", archiveFormat: ".tar.gz"),
             }.Select(x => (x.rid, archive: ArtifactsDirectory / $"dd-trace-{x.rid}{x.archiveFormat}", output: ArtifactsDirectory / "tool" / x.rid))
              .ToArray();
@@ -392,7 +413,7 @@ partial class Build : NukeBuild
                                 .SetRuntime(runtime.rid)));
 
             runtimes.ForEach(
-                x=> Compress(x.output, x.archive));  
+                x=> Compress(x.output, x.archive));
         });
 
     Target RunBenchmarks => _ => _
