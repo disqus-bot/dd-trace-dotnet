@@ -17,7 +17,8 @@
       http.url: http://localhost:00000/api/user,
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -42,7 +43,6 @@
       span.kind: server,
       usr.id: user3,
       _dd.appsec.waf.version: 1.12.0,
-      _dd.p.dm: -0,
       _dd.runtime_family: dotnet
     },
     Metrics: {
@@ -75,7 +75,8 @@
       http.useragent: Mistake Not...,
       language: dotnet,
       span.kind: server,
-      _dd.origin: appsec
+      _dd.origin: appsec,
+      _dd.p.dm: -0
     }
   },
   {
@@ -107,7 +108,6 @@
       _dd.appsec.event_rules.version: 1.7.1,
       _dd.appsec.json: {"triggers":[{"rule":{"id":"blk-001-002","name":"Block User Addresses","tags":{"category":"security_response","type":"block_user"}},"rule_matches":[{"operator":"exact_match","operator_value":"","parameters":[{"address":"usr.id","highlight":["user3"],"key_path":[],"value":"user3"}]}]}]},
       _dd.origin: appsec,
-      _dd.p.dm: -0,
       _dd.runtime_family: dotnet
     },
     Metrics: {

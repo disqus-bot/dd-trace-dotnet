@@ -8,8 +8,7 @@
     Tags: {
       env: integration_tests,
       language: dotnet,
-      runtime-id: Guid_1,
-      _dd.p.dm: -0
+      runtime-id: Guid_1
     },
     Metrics: {
       process_id: 0,
@@ -43,6 +42,7 @@
       peer.service: MyAsyncSQSQueue,
       queuename: MyAsyncSQSQueue,
       span.kind: client,
+      _dd.p.dm: -0,
       _dd.peer.service.source: queuename
     }
   },

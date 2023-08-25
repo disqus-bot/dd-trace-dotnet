@@ -1,4 +1,4 @@
-﻿[
+[
   {
     TraceId: Id_1,
     SpanId: Id_2,
@@ -64,8 +64,7 @@
       "value": "BabsJensen"
     }
   ]
-},
-      _dd.p.dm: -0
+}
     },
     Metrics: {
       process_id: 0,
@@ -94,7 +93,8 @@
       http.url: http://localhost:00000/Iast/Ldap?path=LDAP://fakeorg,DC=com&userName=BabsJensen,
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   }
 ]

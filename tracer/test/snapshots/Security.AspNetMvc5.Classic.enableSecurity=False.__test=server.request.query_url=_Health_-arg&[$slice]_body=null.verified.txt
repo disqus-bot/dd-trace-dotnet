@@ -18,7 +18,8 @@
       http.url: http://localhost:00000/Health/?arg&[$slice],
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -38,8 +39,7 @@
       http.useragent: Mistake Not...,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -68,7 +68,8 @@
       http.url: http://localhost:00000/Health/?arg&[$slice],
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -88,8 +89,7 @@
       http.useragent: Mistake Not...,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -118,7 +118,8 @@
       http.url: http://localhost:00000/Health/?arg&[$slice],
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -138,8 +139,7 @@
       http.useragent: Mistake Not...,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -168,7 +168,8 @@
       http.url: http://localhost:00000/Health/?arg&[$slice],
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -188,8 +189,7 @@
       http.useragent: Mistake Not...,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -218,7 +218,8 @@
       http.url: http://localhost:00000/Health/?arg&[$slice],
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -238,8 +239,7 @@
       http.useragent: Mistake Not...,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,

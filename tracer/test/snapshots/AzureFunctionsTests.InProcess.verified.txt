@@ -23,8 +23,7 @@
       env: integration_tests,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -53,7 +52,8 @@
       http.url: http://localhost:00000/api/trigger,
       out.host: localhost,
       runtime-id: Guid_1,
-      span.kind: client
+      span.kind: client,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0
@@ -88,8 +88,7 @@
       http.url: http://localhost:00000/api/trigger,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -146,7 +145,8 @@
       http.url: http://localhost:00000/api/simple,
       out.host: localhost,
       runtime-id: Guid_1,
-      span.kind: client
+      span.kind: client,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0
@@ -258,8 +258,7 @@
       http.url: http://localhost:00000/api/simple,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -304,8 +303,7 @@ at Samples.AzureFunctions.AllTriggers.AllTriggers.Exception(HttpRequest req, ILo
       http.url: http://localhost:00000/api/exception,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -345,8 +343,7 @@ at Samples.AzureFunctions.AllTriggers.AllTriggers.Exception(HttpRequest req, ILo
       http.url: http://localhost:00000/api/error,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -384,8 +381,7 @@ at Samples.AzureFunctions.AllTriggers.AllTriggers.Exception(HttpRequest req, ILo
       http.url: http://localhost:00000/api/badrequest,
       language: dotnet,
       runtime-id: Guid_1,
-      span.kind: server,
-      _dd.p.dm: -0
+      span.kind: server
     },
     Metrics: {
       process_id: 0,
@@ -472,7 +468,8 @@ at Samples.AzureFunctions.AllTriggers.AllTriggers.Exception(HttpRequest req, ILo
       aas.site.name: AzureFunctionsAllTriggers,
       aas.site.type: function,
       env: integration_tests,
-      language: dotnet
+      language: dotnet,
+      _dd.p.dm: -0
     }
   },
   {
@@ -486,7 +483,8 @@ at Samples.AzureFunctions.AllTriggers.AllTriggers.Exception(HttpRequest req, ILo
       aas.site.name: AzureFunctionsAllTriggers,
       aas.site.type: function,
       env: integration_tests,
-      language: dotnet
+      language: dotnet,
+      _dd.p.dm: -0
     }
   },
   {
@@ -500,7 +498,8 @@ at Samples.AzureFunctions.AllTriggers.AllTriggers.Exception(HttpRequest req, ILo
       aas.site.name: AzureFunctionsAllTriggers,
       aas.site.type: function,
       env: integration_tests,
-      language: dotnet
+      language: dotnet,
+      _dd.p.dm: -0
     }
   },
   {
@@ -514,7 +513,8 @@ at Samples.AzureFunctions.AllTriggers.AllTriggers.Exception(HttpRequest req, ILo
       aas.site.name: AzureFunctionsAllTriggers,
       aas.site.type: function,
       env: integration_tests,
-      language: dotnet
+      language: dotnet,
+      _dd.p.dm: -0
     }
   }
 ]

@@ -477,7 +477,8 @@
       out.host: postgres,
       runtime-id: Guid_1,
       span.kind: client,
-      _dd.dbm_trace_injected: true
+      _dd.dbm_trace_injected: true,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0
@@ -763,7 +764,8 @@
       out.host: postgres,
       runtime-id: Guid_1,
       span.kind: client,
-      _dd.dbm_trace_injected: true
+      _dd.dbm_trace_injected: true,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0

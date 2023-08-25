@@ -17,7 +17,8 @@
       http.url: http://localhost:00000/api/health,
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -40,7 +41,6 @@
       network.client.ip: ::1,
       runtime-id: Guid_1,
       span.kind: server,
-      _dd.p.dm: -0,
       _dd.runtime_family: dotnet
     },
     Metrics: {

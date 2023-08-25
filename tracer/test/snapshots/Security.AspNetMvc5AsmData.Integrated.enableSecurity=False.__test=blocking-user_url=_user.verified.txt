@@ -18,7 +18,8 @@
       http.url: http://localhost:00000/user,
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -39,8 +40,7 @@
       language: dotnet,
       runtime-id: Guid_1,
       span.kind: server,
-      usr.id: user3,
-      _dd.p.dm: -0
+      usr.id: user3
     },
     Metrics: {
       process_id: 0,
@@ -69,7 +69,8 @@
       http.url: http://localhost:00000/user,
       http.useragent: Mistake Not...,
       language: dotnet,
-      span.kind: server
+      span.kind: server,
+      _dd.p.dm: -0
     }
   },
   {
@@ -90,8 +91,7 @@
       language: dotnet,
       runtime-id: Guid_1,
       span.kind: server,
-      usr.id: user3,
-      _dd.p.dm: -0
+      usr.id: user3
     },
     Metrics: {
       process_id: 0,

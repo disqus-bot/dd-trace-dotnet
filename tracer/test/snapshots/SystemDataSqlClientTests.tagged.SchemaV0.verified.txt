@@ -493,7 +493,8 @@
       env: integration_tests,
       out.host: sqlserver,
       runtime-id: Guid_1,
-      span.kind: client
+      span.kind: client,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0
@@ -753,7 +754,8 @@
       env: integration_tests,
       out.host: sqlserver,
       runtime-id: Guid_1,
-      span.kind: client
+      span.kind: client,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0
@@ -813,7 +815,8 @@
       env: integration_tests,
       out.host: sqlserver,
       runtime-id: Guid_1,
-      span.kind: client
+      span.kind: client,
+      _dd.p.dm: -0
     },
     Metrics: {
       _dd.top_level: 1.0
