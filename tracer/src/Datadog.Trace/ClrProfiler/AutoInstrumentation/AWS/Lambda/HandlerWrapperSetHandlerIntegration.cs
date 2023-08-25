@@ -54,14 +54,13 @@ public class HandlerWrapperSetHandlerIntegration
             {
                 Serverless.Debug("DelegateWrapper Running AfterDelegate");
                 Console.WriteLine($"returnValue AfterDelegate {returnValue}");
-                LambdaCommon.EndInvocationSync(returnValue, exception, state.Scope, RequestBuilder);
                 return returnValue;
             },
 
             AfterDelegateAsync = (sender, arg, returnValue, exception) =>
             {
-                LambdaCommon.EndInvocationSync(returnValue, exception, state.Scope, RequestBuilder);
                 Console.WriteLine($"returnValue ASYNC {returnValue}");
+                LambdaCommon.EndInvocationSync(returnValue, exception, state.Scope, RequestBuilder);
             }
         });
         handler = wrapper.Handler;

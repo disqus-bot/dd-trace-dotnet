@@ -60,6 +60,7 @@ internal class DelegateWrapper
         {
             var result = SyncInvoke(argument);
 
+            Console.WriteLine("By the time hit here AfterDelegate should have run");
             try
             {
                 _ = SetAsyncCallback(argument, result);
@@ -81,6 +82,7 @@ internal class DelegateWrapper
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Exception during SetAsyncCallback {ex}");
                 Callbacks?.AfterDelegateAsync?.Invoke(Target?.Target, argument, null, ex);
             }
         }
@@ -116,7 +118,7 @@ internal class DelegateWrapper
             {
                 try
                 {
-                    response = Callbacks?.AfterDelegate?.Invoke(Target.Target, argument, (TReturn)response!, exception);
+                    response = Callbacks?.AfterDelegate?.Invoke(Target.Target, argument, (Task<TReturn>)response!, exception);
                 }
                 catch (Exception e)
                 {

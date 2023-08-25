@@ -17,6 +17,7 @@ using Datadog.Trace.Telemetry;
 using Datadog.Trace.Telemetry.Metrics;
 using Datadog.Trace.Util;
 using Datadog.Trace.Vendors.Newtonsoft.Json;
+using Datadog.Trace.Vendors.Newtonsoft.Json.Converters;
 
 namespace Datadog.Trace.ClrProfiler.ServerlessInstrumentation.AWS
 {
@@ -58,6 +59,7 @@ namespace Datadog.Trace.ClrProfiler.ServerlessInstrumentation.AWS
         internal static CallTargetReturn<TReturn> EndInvocationSync<TReturn>(TReturn returnValue, Exception exception, Scope scope, ILambdaExtensionRequest requestBuilder)
         {
             var json = SerializeObject(returnValue);
+            Console.WriteLine($"THE JSON IS {json}");
             Flush();
             NotifyExtensionEnd(requestBuilder, scope, exception != null, json);
             scope?.Dispose();
@@ -208,7 +210,7 @@ namespace Datadog.Trace.ClrProfiler.ServerlessInstrumentation.AWS
         {
             try
             {
-                return JsonConvert.SerializeObject(obj);
+                return JsonConvert.SerializeObject(obj, Formatting.Indented, new MemoryStreamConverter());
             }
             catch (Exception ex)
             {
