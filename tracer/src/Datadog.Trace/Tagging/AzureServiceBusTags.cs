@@ -27,6 +27,9 @@ namespace Datadog.Trace.Tagging
         [Tag(Trace.Tags.SpanKind)]
         public string SpanKind { get; set; }
 
+        [Metric(Trace.Metrics.MessageQueueTimeMs)]
+        public double? MessageQueueTimeMs { get; set; }
+
         public void SetAnalyticsSampleRate(IntegrationId integration, ImmutableTracerSettings settings, bool enabledWithGlobalSetting)
         {
             if (settings != null)
