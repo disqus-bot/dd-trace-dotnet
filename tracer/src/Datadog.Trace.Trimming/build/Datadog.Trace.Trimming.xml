@@ -3,6 +3,7 @@
    <assembly fullname="AWSSDK.Core" />
    <assembly fullname="AWSSDK.SimpleNotificationService" />
    <assembly fullname="AWSSDK.SQS" />
+   <assembly fullname="Azure.Messaging.ServiceBus" />
    <assembly fullname="Confluent.Kafka" />
    <assembly fullname="Couchbase.NetClient" />
    <assembly fullname="Elasticsearch.Net" />
