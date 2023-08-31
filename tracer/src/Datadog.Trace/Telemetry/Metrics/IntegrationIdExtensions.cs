@@ -62,6 +62,7 @@ internal static class IntegrationIdExtensions
             IntegrationId.PathTraversal => MetricTags.IntegrationName.PathTraversal,
             IntegrationId.Ssrf => MetricTags.IntegrationName.Ssrf,
             IntegrationId.Ldap => MetricTags.IntegrationName.Ldap,
+            IntegrationId.AzureServiceBus => MetricTags.IntegrationName.AzureServiceBus,
             _ => throw new InvalidOperationException($"Unknown IntegrationID {integrationId}"), // dangerous, but we test it will never be called
         };
 }
