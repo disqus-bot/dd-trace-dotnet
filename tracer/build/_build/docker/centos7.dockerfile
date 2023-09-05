@@ -85,8 +85,10 @@ ENV CC=clang
 FROM base as builder
 
 # Copy the build project in and build it
+COPY *.csproj *.props *.targets /build/
+RUN dotnet restore /build
 COPY . /build
-RUN dotnet build /build
+RUN dotnet build /build --no-restore
 WORKDIR /project
 
 FROM base as tester
@@ -109,6 +111,8 @@ RUN if [ "$(uname -m)" = "x86_64" ]; \
 
 
 # Copy the build project in and build it
+COPY *.csproj *.props *.targets /build/
+RUN dotnet restore /build
 COPY . /build
-RUN dotnet build /build
+RUN dotnet build /build --no-restore
 WORKDIR /project
