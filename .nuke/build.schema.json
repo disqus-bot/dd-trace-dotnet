@@ -28,7 +28,7 @@
         },
         "BuildConfiguration": {
           "type": "string",
-          "description": "Configuration to build - Default is 'Release'",
+          "description": "Configuration to build. Default is 'Release'",
           "enum": [
             "Debug",
             "Release"
@@ -167,7 +167,7 @@
         },
         "IsPrerelease": {
           "type": "boolean",
-          "description": "Whether the current build version is a prerelease(for packaging purposes)"
+          "description": "Whether the current build version is a prerelease (for packaging purposes)"
         },
         "MonitoringHome": {
           "type": "string",
@@ -175,7 +175,7 @@
         },
         "NewIsPrerelease": {
           "type": "boolean",
-          "description": "Whether the new build version is a prerelease(for packaging purposes)"
+          "description": "Whether the new build version is a prerelease (for packaging purposes)"
         },
         "NewVersion": {
           "type": "string",
@@ -220,6 +220,10 @@
           "type": "string",
           "description": "Path to a solution file that is automatically loaded. Default is Datadog.Profiler.sln"
         },
+        "PublishReadyToRun": {
+          "type": "boolean",
+          "description": "Publish ReadyToRun assemblies in 'PublishManagedTracerForAwsLambda'. Default is 'true'.If enabled, requires RuntimeIdentifier to be set. See https://learn.microsoft.com/en-us/dotnet/core/deploying/ready-to-run"
+        },
         "PullRequestNumber": {
           "type": "integer",
           "description": "The Pull Request number for GitHub Actions"
@@ -227,6 +231,10 @@
         "Root": {
           "type": "string",
           "description": "Root directory during build execution"
+        },
+        "RuntimeIdentifier": {
+          "type": "string",
+          "description": "RuntimeIdentifier identifies the target platform for ReadyToRun assemblies in 'PublishManagedTracerForAwsLambda'.Required if 'PublishReadyToRun' is enabled. See https://learn.microsoft.com/en-us/dotnet/core/rid-catalog"
         },
         "SampleName": {
           "type": "string",
@@ -266,6 +274,7 @@
               "BuildStandaloneTool",
               "BuildToolArtifactTests",
               "BuildTracerHome",
+              "BuildTracerHomeForAwsLambda",
               "BuildWindowsIntegrationTests",
               "BuildWindowsRegressionTests",
               "CalculateNextVersion",
@@ -351,6 +360,7 @@
               "PrintSnapshotsDiff",
               "PublishIisSamples",
               "PublishManagedTracer",
+              "PublishManagedTracerForAwsLambda",
               "PublishNativeLoader",
               "PublishNativeLoaderOsx",
               "PublishNativeLoaderUnix",
@@ -412,6 +422,7 @@
               "UpdateVersion",
               "VerifyChangedFilesFromVersionBump",
               "ZipMonitoringHome",
+              "ZipMonitoringHomeForAwsLambda",
               "ZipMonitoringHomeLinux",
               "ZipMonitoringHomeOsx",
               "ZipMonitoringHomeWindows",
@@ -457,6 +468,7 @@
               "BuildStandaloneTool",
               "BuildToolArtifactTests",
               "BuildTracerHome",
+              "BuildTracerHomeForAwsLambda",
               "BuildWindowsIntegrationTests",
               "BuildWindowsRegressionTests",
               "CalculateNextVersion",
@@ -542,6 +554,7 @@
               "PrintSnapshotsDiff",
               "PublishIisSamples",
               "PublishManagedTracer",
+              "PublishManagedTracerForAwsLambda",
               "PublishNativeLoader",
               "PublishNativeLoaderOsx",
               "PublishNativeLoaderUnix",
@@ -603,6 +616,7 @@
               "UpdateVersion",
               "VerifyChangedFilesFromVersionBump",
               "ZipMonitoringHome",
+              "ZipMonitoringHomeForAwsLambda",
               "ZipMonitoringHomeLinux",
               "ZipMonitoringHomeOsx",
               "ZipMonitoringHomeWindows",
