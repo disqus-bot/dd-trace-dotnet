@@ -172,23 +172,31 @@ partial class Build : NukeBuild
         .DependsOn(BuildNativeLoader)
         .DependsOn(CreateRootDescriptorsFile);
 
-    // This target is used to build the tracer home directory for the AWS Lambda layer.
-    // The same as BuildTracerHome, but requires Linux,
-    // uses custom version of some tasks ("*AwsLambda"), and skips LibDdwaf.
+    // This target is used to build the tracer home directory for the AWS Lambda layer (linux-amd64 and linux-arm64).
     Target BuildTracerHomeForAwsLambda => _ => _
-        .Description("Builds the native and managed src, and publishes the tracer home directory for AWS Lambda")
+        .Description("Builds the native and managed src, and publishes the tracer home directory for AWS Lambda.")
         .Requires(() => IsLinux)
         .After(Clean)
         .DependsOn(CreateRequiredDirectories)
         .DependsOn(Restore)
         //.DependsOn(CompileManagedSrc)              // PublishManagedTracerForAwsLambda below restores and compiles
-        .DependsOn(PublishManagedTracerForAwsLambda) // instead of PublishManagedTracer
+        .DependsOn(PublishManagedTracerForAwsLambda) // instead of PublishManagedTracer (restores, builds, and publishes)
         .DependsOn(CompileNativeSrc)
         .DependsOn(PublishNativeTracerAwsLambda)     // instead of PublishNativeTracer
         //.DependsOn(DownloadLibDdwaf)
         //.DependsOn(CopyLibDdwaf)
         .DependsOn(CompileNativeLoader)              // instead of BuildNativeLoader -> CompileNativeLoader
-        .DependsOn(PublishNativeLoaderAwsLambda);    // instead of BuildNativeLoader -> PublishNativeLoader
+        .DependsOn(PublishNativeLoaderAwsLambda)     // instead of BuildNativeLoader -> PublishNativeLoader
+        .DependsOn(ExtractDebugInfoAwsLambda);
+
+    Target PublishTracerHomeForAwsLambda => _ => _
+        .Description("Publishes the tracer home directory for AWS Lambda. Can be used after BuildTracerHome instead of BuildTracerHomeForAwsLambda.")
+        .Requires(() => IsLinux)
+        .After(BuildTracerHome, BuildTracerHomeForAwsLambda)
+        .DependsOn(PublishManagedTracerForAwsLambda) // instead of PublishManagedTracer (restores, builds, and publishes)
+        .DependsOn(PublishNativeTracerAwsLambda)     // instead of PublishNativeTracer
+        .DependsOn(PublishNativeLoaderAwsLambda)     // instead of BuildNativeLoader -> PublishNativeLoader
+        .DependsOn(ExtractDebugInfoAwsLambda);
 
     Target BuildProfilerHome => _ => _
         .Description("Builds the Profiler native and managed src, and publishes the profiler home directory")
