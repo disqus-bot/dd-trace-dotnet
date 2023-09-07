@@ -738,6 +738,32 @@ partial class Build
             }
         });
 
+    Target ExtractDebugInfoAwsLambda => _ => _
+        .Unlisted()
+        .After(/*BuildProfilerHome,*/ BuildTracerHomeForAwsLambda, PublishNativeLoaderAwsLambda)
+        .Executes(() =>
+        {
+            // extract debug info from everything in monitoring home and copy it to the linux symbols directory
+            var files = AwsLambdaTracerHomeDirectory.GlobFiles("linux-*/*.so");
+
+            foreach (var file in files)
+            {
+                // var outputDir = SymbolsDirectory / new FileInfo(file).Directory!.Name;
+                // EnsureExistingDirectory(outputDir);
+                // var outputFile = outputDir / Path.GetFileNameWithoutExtension(file);
+                // var debugOutputFile = outputFile + ".debug";
+
+                // Logger.Information($"Extracting debug symbol for {file} to {outputFile}.debug");
+                // ExtractDebugInfo.Value(arguments: $"--only-keep-debug {file} {debugOutputFile}");
+
+                Logger.Information($"Stripping out unneeded information from {file}");
+                StripBinary.Value(arguments: $"--strip-unneeded {file}");
+
+                // Logger.Information($"Add .gnu_debuglink for {file} targeting {debugOutputFile}");
+                // ExtractDebugInfo.Value(arguments: $"--add-gnu-debuglink={debugOutputFile} {file}");
+            }
+        });
+
     Target ZipSymbols => _ => _
         .Unlisted()
         .After(BuildTracerHome)
