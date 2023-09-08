@@ -202,6 +202,11 @@ internal partial class MetricsTelemetryCollector
         Interlocked.Add(ref _buffer.Counts[index], increment);
     }
 
+    public void RecordCountIastRequestTainted(int increment = 1)
+    {
+        Interlocked.Add(ref _buffer.Counts[474], increment);
+    }
+
     /// <summary>
     /// Creates the buffer for the <see cref="Datadog.Trace.Telemetry.Metrics.Count" /> values.
     /// </summary>
@@ -716,6 +721,8 @@ internal partial class MetricsTelemetryCollector
             new(new[] { "vulnerability_type:insecure_cookie" }),
             new(new[] { "vulnerability_type:no_httponly_cookie" }),
             new(new[] { "vulnerability_type:no_samesite_cookie" }),
+            // request.tainted, index = 474
+            new(null),
         };
 
     /// <summary>
@@ -724,7 +731,7 @@ internal partial class MetricsTelemetryCollector
     /// It is equal to the cardinality of the tag combinations (or 1 if there are no tags)
     /// </summary>
     private static int[] CountEntryCounts { get; }
-        = new []{ 4, 168, 56, 1, 3, 4, 2, 2, 4, 1, 1, 1, 22, 3, 2, 4, 4, 1, 22, 3, 2, 44, 6, 1, 56, 1, 22, 3, 1, 1, 5, 11, 1, 12, };
+        = new []{ 4, 168, 56, 1, 3, 4, 2, 2, 4, 1, 1, 1, 22, 3, 2, 4, 4, 1, 22, 3, 2, 44, 6, 1, 56, 1, 22, 3, 1, 1, 5, 11, 1, 12, 1, };
 
-    private const int _countsLength = 474;
+    private const int _countsLength = 475;
 }
